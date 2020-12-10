@@ -240,7 +240,7 @@ def render_scene(camera, baseDir, numViews, outputs, BBox):
                 dg.update()
                 #bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
                 time.sleep(3)
-                scene.render.filepath = fp + "render_%d_%d_%d" % (angle_x, angle_y, angle_z)
+                scene.render.filepath = os.path.join(fp, "render_%d_%d_%d" % (angle_x, angle_y, angle_z))
                 outputs["depth"].file_slots[0].path = scene.render.filepath + "_depth.exr"
                 # normal_file_output.file_slots[0].path = scene.render.filepath + "_normal.exr"
                 # albedo_file_output.file_slots[0].path = scene.render.filepath + "_albedo.exr"
@@ -434,7 +434,7 @@ if __name__ == "__main__":
     # print(b_empty.view_frame)
 
     model_identifier = os.path.split(os.path.split(args.obj)[0])[1]
-    fp = os.path.join(args.output_folder, model_identifier, model_identifier)
+    fp = os.path.join(args.output_folder)
     if not os.path.exists(fp):
         os.makedirs(fp)
     # # for output_node in [depth_file_output, normal_file_output, albedo_file_output]:
