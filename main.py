@@ -13,7 +13,7 @@
 #    cam.transpose()
 #    cmra = camera.getData()
 # - save world_2_camera_view + 6 orientation values
-# - compute sparse flow (per vertex) 
+# - compute sparse flow (per vertex)
 # FUTURE WORK
 # + dense flow
 # - add lights/motion blur/..
@@ -37,7 +37,7 @@ import pickle
 
 
 current_script_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(current_script_path) 
+sys.path.append(current_script_path)
 
 
 from poliigon_converter import PMC_workflow as Load_Material_Helper
@@ -90,7 +90,7 @@ def parent_obj_to_camera(b_camera):
     bpy.context.view_layer.objects.active = b_empty
     #scn.objects.active = b_empty
     #scn.update()
-    dg = bpy.context.evaluated_depsgraph_get() 
+    dg = bpy.context.evaluated_depsgraph_get()
     dg.update()
     return b_empty
 
@@ -112,7 +112,7 @@ def getVisibleObjVerticesAndEdges(scene, obj):
     mapVertices = [0] * len(obj.data.vertices)
     currentVertices = 0
     filteredVertices = []
-    
+
     for i, vertex in enumerate(obj.data.vertices):
         if not vertex.select:
             continue
@@ -143,7 +143,7 @@ def computeBBoxDistances(thisVertices, MinBBox, MaxBBox):
     maxDistances = MaxBBox - thisVertices
     res = np.concatenate([minDistances, maxDistances], axis=1)
     return res
-    
+
 # Deselect mesh polygons and vertices
 def DeselectEdgesAndPolygons( obj ):
     for p in obj.data.polygons:
@@ -151,15 +151,15 @@ def DeselectEdgesAndPolygons( obj ):
     for e in obj.data.edges:
         e.select = False
     return obj
-        
 
-# Create a BVH tree and return bvh and vertices in world coordinates 
+
+# Create a BVH tree and return bvh and vertices in world coordinates
 def BVHTreeAndVerticesInWorldFromObj( obj ):
     mWorld = obj.matrix_world
     vertsInWorld = [mWorld @ v.co for v in obj.data.vertices]
     bvh = BVHTree.FromPolygons( vertsInWorld, [p.vertices for p in obj.data.polygons] )
     return bvh, vertsInWorld
-    
+
 
 def select_visible_vertices(scene, obj):
     # Threshold to test if ray cast corresponds to the original vertex
@@ -179,7 +179,7 @@ def select_visible_vertices(scene, obj):
         obj.data.vertices[i].select = False
 
         # If inside the camera view
-        if 0.0 <= co2D.x <= 1.0 and 0.0 <= co2D.y <= 1.0: 
+        if 0.0 <= co2D.x <= 1.0 and 0.0 <= co2D.y <= 1.0:
             # Try a ray cast, in order to test the vertex visibility from the camera
             location, normal, index, distance = bvh.ray_cast( cam.location, (v - cam.location).normalized() )
             # If the ray hits something and if this hit is close to the vertex, we assume this is the vertex
@@ -303,7 +303,7 @@ if __name__ == "__main__":
     # material path
     MATERIAL_NAME = args.material #'TilesMarbleSageGreenBrickBondHoned001_3K'
     MATERIAL_PATH = os.path.join(current_script_path, 'poliigon_material_samples', MATERIAL_NAME)
-    
+
     # render w/ cycles
     bpy.context.scene.render.engine = 'BLENDER_EEVEE'
 
@@ -373,7 +373,7 @@ if __name__ == "__main__":
         bpy.ops.object.modifier_add(type='EDGE_SPLIT')
         bpy.context.object.modifiers["EdgeSplit"].split_angle = 1.32645
         bpy.ops.object.modifier_apply(modifier="EdgeSplit")
-        
+
         # "Remesh"  for better texture rendering
         bpy.ops.object.modifier_add(type='REMESH')
         bpy.context.object.modifiers["Remesh"].mode = 'SMOOTH'
@@ -381,12 +381,12 @@ if __name__ == "__main__":
         bpy.context.object.modifiers["Remesh"].scale = 0.99
         bpy.context.object.modifiers["Remesh"].use_smooth_shade = True
         bpy.ops.object.modifier_apply(modifier="Remesh")
-        
+
         # add uv map
         #bpy.ops.uv.smart_project()
         bpy.ops.mesh.uv_texture_add()
-        
-        
+
+
 
     # Make light just directional, disable shadows.
     light = bpy.data.lights['Light']
@@ -396,7 +396,7 @@ if __name__ == "__main__":
     light.use_nodes = True
     light.node_tree.nodes['Emission'].inputs[1].default_value = 20
     # Possibly disable specular shading:
-    
+
     ## HERE
     ##light.use_specular = False
 
@@ -459,7 +459,7 @@ if __name__ == "__main__":
         else:
             # no slots
             item.data.materials.append(mat)
-        
+
         #need vertices selected here
         vertices, edges = getObjVerticesAndEdges(item)
         meshesDict[item.name] = (vertices, edges)
@@ -479,7 +479,7 @@ if __name__ == "__main__":
     #         vertex_transformed = projection_matrix * modelview_matrix * Vector((vertex[0], vertex[1], vertex[2], 1))
     #         vertex_transformed /= vertex_transformed.w
     #         print(vertex_transformed)
-    
+
     light_data = bpy.data.lights.new(name="additional_light", type='POINT')
     light_data.cycles.cast_shadow = True
     light_data.use_nodes = True
@@ -488,6 +488,6 @@ if __name__ == "__main__":
     ## scene.objects.link(light_object)
     bpy.context.collection.objects.link(light_object)
     light_object.location = (np.random.randint(2), np.random.randint(2), np.random.randint(2))
-    
+
     render_scene(camera=b_empty, baseDir=fp, numViews=(args.views_x, args.views_y, args.views_z),
                  outputs={"depth": depth_file_output}, BBox=(MinBBox, MaxBBox))
