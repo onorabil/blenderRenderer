@@ -217,12 +217,12 @@ def BVHTreeAndVerticesInWorldFromObj( obj ):
 
 def select_visible_vertices(cam, scene, obj):
     limit = 0.0001
-    bvh, vertices = BVHTreeAndVerticesInWorldFromObj( obj )
-    for i, v in enumerate( vertices ):
-        co2D = world_to_camera_view( scene, cam, v )
+    bvh, vertices = BVHTreeAndVerticesInWorldFromObj(obj)
+    for i, v in enumerate(vertices):
+        co2D = world_to_camera_view(scene, cam, v)
         obj.data.vertices[i].select = False
         if 0.0 <= co2D.x <= 1.0 and 0.0 <= co2D.y <= 1.0:
-            location, normal, index, distance = bvh.ray_cast( cam.location, (v - cam.location).normalized() )
+            location, normal, index, distance = bvh.ray_cast(cam.location, (v - cam.location).normalized())
             if location and (v - location).length < limit:
                 obj.data.vertices[i].select = True
     return obj
@@ -245,7 +245,7 @@ def getDistancesToBBox(cam, scene, BBox):
 
 def render_scene(baseDir, outputs, scene):
     scene.render.image_settings.file_format = 'PNG'
-    cams = [c for c in context.scene.objects if c.type == 'CAMERA']
+    cams = [c for c in scene.objects if c.type == 'CAMERA']
     bbox = get_bbox(scene)
 
     for c in cams:
@@ -289,9 +289,7 @@ def render_scene(baseDir, outputs, scene):
         bpy.ops.render.render(write_still=True)
         enablePrint(old)
 
-if __name__ == "__main__":
-    args = getArgs()
-
+def setup_blener():
     bpy.context.scene.use_nodes = True
     tree = bpy.context.scene.node_tree
     links = tree.links
@@ -330,6 +328,14 @@ if __name__ == "__main__":
     albedo_file_output.label = 'Albedo Output'
     links.new(render_layers.outputs['DiffCol'], albedo_file_output.inputs[0])
 
+    return depth_file_output
+
+if __name__ == "__main__":
+    args = getArgs()
+
+    depth_file_output = setup_blener()
+    depth_file_output.base_path = ""
+
     model_path = args.obj
     output_path = args.output_folder
     material_path = args.material
@@ -354,8 +360,6 @@ if __name__ == "__main__":
     fp = os.path.join(args.output_folder)
     if not os.path.exists(fp):
         os.makedirs(fp)
-
-    depth_file_output.base_path = ""
 
     light_data = bpy.data.lights.new(name="additional_light", type='POINT')
     light_data.cycles.cast_shadow = True
