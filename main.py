@@ -18,9 +18,6 @@
 # + dense flow
 # - add lights/motion blur/..
 
-
-
-
 import argparse, sys, os
 import bpy
 import sys
@@ -38,7 +35,7 @@ sys.path.append(current_script_path)
 
 from poliigon_converter import PMC_workflow as Load_Material_Helper
 
-def getArgs():
+def get_args():
     parser = argparse.ArgumentParser(description='Renders given obj file by rotation a camera around it.')
     # Views for the 3 euler angles
     parser.add_argument('--views_x', type=int, default=30)
@@ -57,7 +54,7 @@ def getArgs():
     args = parser.parse_args(argv)
     return args
 
-def blockPrint():
+def disable_print():
     open(os.devnull, 'a').close()
     old = os.dup(1)
     sys.stdout.flush()
@@ -65,7 +62,7 @@ def blockPrint():
     os.open(os.devnull, os.O_WRONLY)
     return old
 
-def enablePrint(old):
+def enable_print(old):
     os.close(1)
     os.dup(old)
     os.close(old)
@@ -158,7 +155,7 @@ def get_bbox(scene):
         if item.type in ['CAMERA', 'LIGHT']:
             continue
 
-        vertices, edges = getObjVerticesAndEdges(item)
+        vertices, edges = get_obj_vertices_and_edges(item)
         meshesDict[item.name] = (vertices, edges)
         if vertices.shape[0] == 0:
             continue
@@ -166,13 +163,13 @@ def get_bbox(scene):
         allEdges = np.concatenate([allEdges, edges], axis=0)
     return np.min(allVertices, axis=0), np.max(allVertices, axis=0)
 
-def getObjVerticesAndEdges(obj):
+def get_obj_vertices_and_edges(obj):
     vertices = np.array([list((obj.matrix_world @ v.co)) for v in obj.data.vertices])
     edges = np.array([list(i.vertices) for i in obj.data.edges])
     return vertices, edges
 
-def getVisibleObjVerticesAndEdges(cam, scene, obj):
-    obj = DeselectEdgesAndPolygons(obj)
+def get_visible_obj_vertices_and_edges(cam, scene, obj):
+    obj = deselect_edges_and_polygons(obj)
     obj = select_visible_vertices(cam, scene, obj)
 
     mapVertices = [0] * len(obj.data.vertices)
@@ -196,20 +193,14 @@ def getVisibleObjVerticesAndEdges(cam, scene, obj):
     edges = np.array(edges)
     return vertices, edges
 
-def computeBBoxDistances(thisVertices, MinBBox, MaxBBox):
-    minDistances = thisVertices - MinBBox
-    maxDistances = MaxBBox - thisVertices
-    res = np.concatenate([minDistances, maxDistances], axis=1)
-    return res
-
-def DeselectEdgesAndPolygons( obj ):
+def deselect_edges_and_polygons( obj ):
     for p in obj.data.polygons:
         p.select = False
     for e in obj.data.edges:
         e.select = False
     return obj
 
-def BVHTreeAndVerticesInWorldFromObj( obj ):
+def get_bvh_and_vertices( obj ):
     mWorld = obj.matrix_world
     vertsInWorld = [mWorld @ v.co for v in obj.data.vertices]
     bvh = BVHTree.FromPolygons( vertsInWorld, [p.vertices for p in obj.data.polygons] )
@@ -217,7 +208,7 @@ def BVHTreeAndVerticesInWorldFromObj( obj ):
 
 def select_visible_vertices(cam, scene, obj):
     limit = 0.0001
-    bvh, vertices = BVHTreeAndVerticesInWorldFromObj(obj)
+    bvh, vertices = get_bvh_and_vertices(obj)
     for i, v in enumerate(vertices):
         co2D = world_to_camera_view(scene, cam, v)
         obj.data.vertices[i].select = False
@@ -227,7 +218,7 @@ def select_visible_vertices(cam, scene, obj):
                 obj.data.vertices[i].select = True
     return obj
 
-def getDistancesToBBox(cam, scene, BBox):
+def get_distances_to_bbox(cam, scene, BBox):
     MinBBox, MaxBBox = BBox
     distancesDict = {}
     meshesDict = {}
@@ -236,7 +227,7 @@ def getDistancesToBBox(cam, scene, BBox):
     for item in scene.objects:
         if item.type in ["CAMERA", "LIGHT"]:
             continue
-        vertices, edges = getVisibleObjVerticesAndEdges(cam, scene, item)
+        vertices, edges = get_visible_obj_vertices_and_edges(cam, scene, item)
         if len(vertices) == 0 or len(edges) == 0:
             continue
         allVertices = np.concatenate([allVertices, vertices], axis=0)
@@ -271,7 +262,7 @@ def render_scene(baseDir, outputs, scene):
         inv_projection_matrix = projection_matrix.copy()
         inv_projection_matrix.invert()
 
-        vertices, edges = getDistancesToBBox(c, scene, bbox)
+        vertices, edges = get_distances_to_bbox(c, scene, bbox)
 
         pklFile = open(scene.render.filepath + '.pkl', "wb")
         transformedVertices = np.zeros(vertices.shape)
@@ -285,9 +276,9 @@ def render_scene(baseDir, outputs, scene):
         pickle.dump(edges.astype(np.int), pklFile)
         pklFile.close()
 
-        old = blockPrint()
+        old = disable_print()
         bpy.ops.render.render(write_still=True)
-        enablePrint(old)
+        enable_print(old)
 
 def setup_blener():
     bpy.context.scene.use_nodes = True
@@ -331,7 +322,7 @@ def setup_blener():
     return depth_file_output
 
 if __name__ == "__main__":
-    args = getArgs()
+    args = get_args()
 
     depth_file_output = setup_blener()
     depth_file_output.base_path = ""
