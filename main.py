@@ -148,6 +148,13 @@ def edit_context_objects(context):
         context.object.modifiers["EdgeSplit"].split_angle = 1.32645
         bpy.ops.object.modifier_apply(modifier="EdgeSplit")
 
+        bpy.ops.object.modifier_add(type='REMESH')
+        bpy.context.object.modifiers["Remesh"].mode = 'SMOOTH'
+        bpy.context.object.modifiers["Remesh"].octree_depth = 10
+        bpy.context.object.modifiers["Remesh"].scale = 0.99
+        bpy.context.object.modifiers["Remesh"].use_smooth_shade = True
+        bpy.ops.object.modifier_apply(modifier="Remesh")
+
         bpy.ops.mesh.uv_texture_add()
 
         apply_poliigon_material(object, poliigon_material)
