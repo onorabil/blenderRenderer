@@ -72,6 +72,8 @@ def cleanup_initial_scene():
     bpy.ops.object.delete()
     bpy.data.objects['Camera'].select_set(state=True)
     bpy.ops.object.delete()
+    bpy.data.objects['Light'].select_set(state=True)
+    bpy.ops.object.delete()
 
 def generate_cameras(scene):
     top_camera_data = bpy.data.cameras.new(name="top")
@@ -113,7 +115,13 @@ def generate_cameras(scene):
 
 def generate_lights(scene):
     light_data = bpy.data.lights.new(name="light", type='SUN')
-    light_data.energy = 30
+    light_data.energy = 1
+    light_object = bpy.data.objects.new(name="light", object_data=light_data)
+
+    scene.collection.objects.link(light_object)
+
+    light_data = bpy.data.lights.new(name="light", type='SUN')
+    light_data.energy = 1
     light_object = bpy.data.objects.new(name="light", object_data=light_data)
     light_object.rotation_euler = (3.14, 0, 0)
 
