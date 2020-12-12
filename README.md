@@ -9,12 +9,11 @@ https://help.poliigon.com/en/articles/2540839-poliigon-material-converter-addon-
 - go to poliigon.com
 - crete an account
 - download a {free} texture
-- place all images in the ```poliigon_material_samples/textureName_resolution``` folder ( e.g, ```TilesMarbleSageGreenBrickBondHoned001_3K```)
 
 2. Render
 
 ```sh
-blender -b --python main.py -- models/1a04e3eab45ca15dd86060f189eb133/models/model_normalized.obj --views_x=5 --views_y=5 --views_z=5 --output_folder output
+blender -b --python main.py -- models/goat_willow_leaf/model_normalized.obj --material materials/GroundMoss001_3K --output_folder output
 ```
 
 #### TODO
