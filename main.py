@@ -375,12 +375,12 @@ if __name__ == "__main__":
         bpy.ops.object.modifier_apply(modifier="EdgeSplit")
 
         # "Remesh"  for better texture rendering
-        bpy.ops.object.modifier_add(type='REMESH')
-        bpy.context.object.modifiers["Remesh"].mode = 'SMOOTH'
-        bpy.context.object.modifiers["Remesh"].octree_depth = 4
-        bpy.context.object.modifiers["Remesh"].scale = 0.99
-        bpy.context.object.modifiers["Remesh"].use_smooth_shade = True
-        bpy.ops.object.modifier_apply(modifier="Remesh")
+        # bpy.ops.object.modifier_add(type='REMESH')
+        # bpy.context.object.modifiers["Remesh"].mode = 'SMOOTH'
+        # bpy.context.object.modifiers["Remesh"].octree_depth = 4
+        # bpy.context.object.modifiers["Remesh"].scale = 0.99
+        # bpy.context.object.modifiers["Remesh"].use_smooth_shade = True
+        # bpy.ops.object.modifier_apply(modifier="Remesh")
 
         # add uv map
         #bpy.ops.uv.smart_project()
@@ -405,7 +405,7 @@ if __name__ == "__main__":
     light2 = bpy.data.lights['Sun']
     #light2.use_specular = False
     light2.cycles.cast_shadow = True
-    light2use_nodes = True
+    light2.use_nodes = True
     ## light2.node_tree.nodes['Emission'].inputs[1].default_value = 10
     bpy.data.objects['Sun'].rotation_euler = bpy.data.objects['Light'].rotation_euler
     bpy.data.objects['Sun'].rotation_euler[0] += 180
