@@ -392,9 +392,9 @@ if __name__ == "__main__":
     light = bpy.data.lights['Light']
     light.type = 'SUN'
     light.cycles.cast_shadow = True
-    light.energy = 1  ######################################################## Do for the other lights
+    light.energy = 2  ######################################################## Do for the other lights
     light.use_nodes = True
-    light.node_tree.nodes['Emission'].inputs[1].default_value = 20
+    light.node_tree.nodes['Emission'].inputs[1].default_value = 2
     # Possibly disable specular shading:
     
     ## HERE
@@ -403,12 +403,11 @@ if __name__ == "__main__":
     # Add another light source so stuff facing away from light is not completely dark
     bpy.ops.object.light_add(type='SUN')
     light2 = bpy.data.lights['Sun']
-    #light2.use_specular = False
+    light2.energy = 1
     light2.cycles.cast_shadow = True
     light2use_nodes = True
-    ## light2.node_tree.nodes['Emission'].inputs[1].default_value = 10
     bpy.data.objects['Sun'].rotation_euler = bpy.data.objects['Light'].rotation_euler
-    bpy.data.objects['Sun'].rotation_euler[0] += 180
+    bpy.data.objects['Sun'].rotation_euler = (3.14, 0, 0)
 
     # Scene stuff
     scene = bpy.context.scene
