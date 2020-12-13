@@ -1,6 +1,6 @@
 #!/bin/sh
 
-model_name=$1
-materials=$(ls poliigon_material_samples)
+model=$1
+material=$2
 
-for m in $materials ; do ./apply_texture.sh $model_name $m ; done
+blender -b --python main.py -- $model --material $material --views_x=4 --views_y=4 --views_z=4 --output_folder output
