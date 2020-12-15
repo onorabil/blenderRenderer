@@ -374,17 +374,13 @@ if __name__ == "__main__":
         bpy.context.object.modifiers["EdgeSplit"].split_angle = 1.32645
         bpy.ops.object.modifier_apply(modifier="EdgeSplit")
         
-        # "Remesh"  for better texture rendering
-        bpy.ops.object.modifier_add(type='REMESH')
-        bpy.context.object.modifiers["Remesh"].mode = 'SMOOTH'
-        bpy.context.object.modifiers["Remesh"].octree_depth = 10
-        bpy.context.object.modifiers["Remesh"].scale = 0.99
-        bpy.context.object.modifiers["Remesh"].use_smooth_shade = True
-        bpy.ops.object.modifier_apply(modifier="Remesh")
-        
         # add uv map
-        #bpy.ops.uv.smart_project()
-        bpy.ops.mesh.uv_texture_add()
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.mesh.select_all(action='SELECT') # for all faces
+        bpy.ops.uv.smart_project(angle_limit=66, island_margin = 0.02)
+        bpy.ops.object.editmode_toggle()
+        object.select_set(False)
+        #bpy.ops.mesh.uv_texture_add()
         
         
 
