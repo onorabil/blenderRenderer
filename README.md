@@ -13,7 +13,7 @@ https://help.poliigon.com/en/articles/2540839-poliigon-material-converter-addon-
 2. Render
 
 ```sh
-blender -b --python main.py -- models/goat_willow_leaf/model_normalized.obj --material materials/GroundMoss001_3K --output_folder output
+blender -b --python main.py -- models/goat_willow_leaf/model_normalized.obj --views_x=3 --views_y=3 --views_z=3 --material materials/Leaf_4K --output_folder output
 ```
 
 #### TODO
