@@ -84,12 +84,8 @@ def parent_obj_to_camera(b_camera):
     b_empty.location = origin
     b_camera.parent = b_empty  # setup parenting
 
-    scn = bpy.context.scene
-    ## scn.objects.link(b_empty)
     bpy.context.collection.objects.link(b_empty)
     bpy.context.view_layer.objects.active = b_empty
-    #scn.objects.active = b_empty
-    #scn.update()
     dg = bpy.context.evaluated_depsgraph_get() 
     dg.update()
     return b_empty
@@ -98,16 +94,12 @@ def parent_obj_to_camera(b_camera):
 def getObjVerticesAndEdges(obj):
     vertices = np.array([list((obj.matrix_world @ v.co)) for v in obj.data.vertices])
     edges = np.array([list(i.vertices) for i in obj.data.edges])
-    #print('vertices')
-    #print(vertices)
-    #print('edges')
-    #print(edges)
     return vertices, edges
 
 
-def getVisibleObjVerticesAndEdges(scene, obj):
+def getVisibleObjVerticesAndEdges(cameraRig, scene, obj):
     obj = DeselectEdgesAndPolygons(obj)
-    obj = select_visible_vertices(scene, obj)
+    obj = select_visible_vertices(cameraRig, scene, obj)
 
     mapVertices = [0] * len(obj.data.vertices)
     currentVertices = 0
@@ -153,13 +145,11 @@ def BVHTreeAndVerticesInWorldFromObj( obj ):
     return bvh, vertsInWorld
     
 
-def select_visible_vertices(scene, obj):
+def select_visible_vertices(cameraRig, scene, obj):
     # Threshold to test if ray cast corresponds to the original vertex
     limit = 0.0001
     # In world coordinates, get a bvh tree and vertices
-    # sce = context.scene
-    camera = scene.objects['Empty'].children[0]
-    #camera = scene.objects['Camera']
+    camera = cameraRig.children[0]
     print(camera)
 
     bvh, vertices = BVHTreeAndVerticesInWorldFromObj( obj )
@@ -173,13 +163,13 @@ def select_visible_vertices(scene, obj):
         # If inside the camera view
         if 0.0 <= co2D.x <= 1.0 and 0.0 <= co2D.y <= 1.0: 
             # Try a ray cast, in order to test the vertex visibility from the camera
-            location, normal, index, distance = bvh.ray_cast( cam.location, (v - cam.location).normalized() )
+            location, normal, index, distance = bvh.ray_cast( cameraRig.location, (v - cameraRig.location).normalized() )
             # If the ray hits something and if this hit is close to the vertex, we assume this is the vertex
             if location and (v - location).length < limit:
                 obj.data.vertices[i].select = True
     return obj
 
-def getDistancesToBBox(scene, BBox):
+def getDistancesToBBox(cameraRig, scene, BBox):
     MinBBox, MaxBBox = BBox
     distancesDict = {}
     meshesDict = {}
@@ -190,7 +180,7 @@ def getDistancesToBBox(scene, BBox):
             continue
         #need vertices selected here
         # WTF ???
-        vertices, edges = getVisibleObjVerticesAndEdges(scene, item)
+        vertices, edges = getVisibleObjVerticesAndEdges(cameraRig, scene, item)
         print('selected vertices', len(vertices))
         print('selected edges', len(edges))
         if len(vertices) == 0 or len(edges) == 0:
@@ -219,10 +209,12 @@ def render_scene(scene, cameraRig, baseDir, numViews, outputs, BBox, model_ident
 
                 dg = bpy.context.evaluated_depsgraph_get()
                 dg.update()
-                scene.render.filepath = os.path.join(baseDir, model_identifier + "_render_%d_%d_%d" % (angle_x, angle_y, angle_z))
-                outputs["depth"].file_slots[0].path = scene.render.filepath + "_depth.exr"
-                # normal_file_output.file_slots[0].path = scene.render.filepath + "_normal.exr"
-                # albedo_file_output.file_slots[0].path = scene.render.filepath + "_albedo.exr"
+                fname = model_identifier + "_render_%d_%d_%d" % (angle_x, angle_y, angle_z)
+                scene.render.filepath = os.path.join(baseDir, fname)
+                outputs["depth"].file_slots[0].path = fname + "_depth.exr"
+                outputs["flow"].file_slots[0].path = fname + "_optical-flow.exr"
+                outputs["normal"].file_slots[0].path = fname + "_normal.exr"
+                outputs["albedo"].file_slots[0].path = fname + "_albedo.exr"
 
                 modelview_matrix = cameraWTF.matrix_world
                 projection_matrix = cameraWTF.calc_matrix_camera(
@@ -256,7 +248,7 @@ def render_scene(scene, cameraRig, baseDir, numViews, outputs, BBox, model_ident
                 pklFile.close()
                 # TODO
 
-                vertices, edges = getDistancesToBBox(scene, BBox)
+                vertices, edges = getDistancesToBBox(cameraRig, scene, BBox)
                 print("Rotation. X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). Vertices: %d. Edges: %d" % \
                     (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, len(vertices), len(edges)))
 
@@ -266,25 +258,26 @@ def render_scene(scene, cameraRig, baseDir, numViews, outputs, BBox, model_ident
 
 if __name__ == "__main__":
     args = getArgs()
-    # Set up rendering of depth map.
-    bpy.context.scene.use_nodes = True
-    tree = bpy.context.scene.node_tree
-    links = tree.links
+    fp = os.path.join(current_script_path, args.output_folder)
 
     # material path
     MATERIAL_NAME = args.material
     MATERIAL_PATH = os.path.join(current_script_path, MATERIAL_NAME)
     
     # render w/ cycles
-    bpy.context.scene.render.engine = 'BLENDER_EEVEE'
+    bpy.context.scene.render.engine = 'CYCLES'
 
     # Add passes for additionally dumping albedo and normals.
-    bpy.types.RenderLayer.use_pass_normal = True
-    bpy.types.RenderLayer.use_pass_color = True
+    bpy.context.scene.use_nodes = True
+    bpy.context.scene.view_layers["View Layer"].use_pass_vector = True
+    bpy.context.scene.view_layers["View Layer"].use_pass_normal = True
+    bpy.context.scene.view_layers["View Layer"].use_pass_diffuse_color = True
     bpy.context.scene.render.image_settings.file_format = "OPEN_EXR"
     bpy.context.scene.render.image_settings.color_depth = "16"
 
     # Clear default nodes
+    tree = bpy.context.scene.node_tree
+    links = tree.links
     for n in tree.nodes:
         tree.nodes.remove(n)
     
@@ -294,8 +287,14 @@ if __name__ == "__main__":
     # Depth setup
     depth_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
     depth_file_output.label = 'Depth Output'
-    depth_file_output.base_path = ""
-    links.new(render_layers.outputs['Depth'], depth_file_output.inputs[0])
+    depth_file_output.base_path = fp
+    links.new(render_layers.outputs['Depth'], depth_file_output.inputs['Image'])
+
+    # Optical Flow setup
+    flow_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
+    flow_file_output.label = 'Optical Flow Output'
+    flow_file_output.base_path = fp
+    links.new(render_layers.outputs['Vector'], flow_file_output.inputs['Image'])
 
     scale_normal = tree.nodes.new(type="CompositorNodeMixRGB")
     scale_normal.blend_type = 'MULTIPLY'
@@ -309,12 +308,12 @@ if __name__ == "__main__":
 
     normal_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
     normal_file_output.label = 'Normal Output'
-    normal_file_output.base_path = ""
+    normal_file_output.base_path = fp
     links.new(bias_normal.outputs[0], normal_file_output.inputs[0])
 
     albedo_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
     albedo_file_output.label = 'Albedo Output'
-    albedo_file_output.base_path = ""
+    albedo_file_output.base_path = fp
     links.new(render_layers.outputs['DiffCol'], albedo_file_output.inputs[0])
 
     # Delete default cube
@@ -354,7 +353,6 @@ if __name__ == "__main__":
     cam_constraint.target = b_empty
 
     model_identifier = os.path.split(os.path.split(args.obj)[0])[1]
-    fp = os.path.join(current_script_path, args.output_folder)
     set_path = MATERIAL_PATH
     lmh = Load_Material_Helper()
     status, material = lmh.build_material_from_set(bpy.context, set_path)
@@ -387,5 +385,6 @@ if __name__ == "__main__":
     light_object.location = (np.random.randint(2), np.random.randint(2), np.random.randint(2))
     
     render_scene(scene=bpy.context.scene, cameraRig=b_empty, baseDir=fp, numViews=(args.views_x, args.views_y, args.views_z),
-                 outputs={"depth": depth_file_output}, BBox=(MinBBox, MaxBBox), model_identifier=model_identifier)
+                 outputs={"depth": depth_file_output, "flow": flow_file_output, "normal": normal_file_output, "albedo": albedo_file_output}, 
+                 BBox=(MinBBox, MaxBBox), model_identifier=model_identifier)
 
