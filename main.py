@@ -211,10 +211,10 @@ def render_scene(scene, cameraRig, baseDir, numViews, outputs, BBox, model_ident
                 dg.update()
                 fname = model_identifier + "_render_%d_%d_%d" % (angle_x, angle_y, angle_z)
                 scene.render.filepath = os.path.join(baseDir, fname)
-                outputs["depth"].file_slots[0].path = fname + "_depth.exr"
-                outputs["flow"].file_slots[0].path = fname + "_optical-flow.exr"
-                outputs["normal"].file_slots[0].path = fname + "_normal.exr"
-                outputs["albedo"].file_slots[0].path = fname + "_albedo.exr"
+                outputs["depth"].file_slots[0].path = fname + "_depth"
+                outputs["flow"].file_slots[0].path = fname + "_optical-flow"
+                outputs["normal"].file_slots[0].path = fname + "_normal"
+                outputs["albedo"].file_slots[0].path = fname + "_albedo"
 
                 modelview_matrix = cameraWTF.matrix_world
                 projection_matrix = cameraWTF.calc_matrix_camera(
