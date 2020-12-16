@@ -16,6 +16,8 @@ https://help.poliigon.com/en/articles/2540839-poliigon-material-converter-addon-
 blender -b --python main.py -- models/goat_willow_leaf/model_normalized.obj --views_x=3 --views_y=3 --views_z=3 --material materials/Leaf_4K --output_folder output
 ```
 
+3. Preview Data using jupyter notebook
+
 #### TODO
 - add params for mesh / symmetric mesh instead of loaded model
 - add optical flow
