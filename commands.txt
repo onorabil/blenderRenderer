@@ -1,0 +1,9 @@
+blender -b --python main.py -- models/alder_leaf/model_normalized.obj --material materials/Leaf_4K --views_x=3 --views_y=3 --views_z=3 --output_folder output
+blender -b --python main.py -- models/apple_leaf/model_normalized.obj --material materials/Leaf_4K --views_x=3 --views_y=3 --views_z=3 --output_folder output
+blender -b --python main.py -- models/aspen_leaf/model_normalized.obj --material materials/Leaf_4K --views_x=3 --views_y=3 --views_z=3 --output_folder output
+blender -b --python main.py -- models/birch_leaf/model_normalized.obj --material materials/Leaf_4K --views_x=3 --views_y=3 --views_z=3 --output_folder output
+blender -b --python main.py -- models/goat_willow_leaf/model_normalized.obj --material materials/Leaf_4K --views_x=3 --views_y=3 --views_z=3 --output_folder output
+blender -b --python main.py -- models/black_poplar_leaf/model_normalized.obj --material materials/Leaf_4K --views_x=3 --views_y=3 --views_z=3 --output_folder output
+blender -b --python main.py -- models/white_poplar_leaf/model_normalized.obj --material materials/Leaf_4K --views_x=3 --views_y=3 --views_z=3 --output_folder output
+blender -b --python main.py -- models/beech_leaf/model_normalized.obj --material materials/Leaf_4K --views_x=3 --views_y=3 --views_z=3 --output_folder output
+
