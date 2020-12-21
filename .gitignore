@@ -2,3 +2,4 @@ materials
 __pycache__
 .vscode
 commands.bat
+output
