@@ -30,7 +30,6 @@ import bmesh
 from bpy_extras.object_utils import world_to_camera_view
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
-from mathutils import noise
 import time
 import pickle
 # HARDCODED STUFF
@@ -101,10 +100,13 @@ def parent_obj_to_camera(b_camera):
     return b_empty
 
 
-def randomizeObjVerticesAndEdges(obj):
-    for v in obj.data.vertices:
-        noise_vec = noise.random_unit_vector() / 250
-        v.co += noise_vec
+def randomizeObj(obj):
+    obj.select_set(state=True)
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.transform.vertex_random(offset=0.0025, seed=SEED, uniform=1, normal=0)
+    bpy.ops.object.mode_set(mode='OBJECT')
 
 
 def getObjVerticesAndEdges(obj):
@@ -346,7 +348,6 @@ if __name__ == "__main__":
     fp = os.path.join(current_script_path, args.output_folder)
     MATERIAL_PATH = os.path.join(current_script_path, args.material)
     SEED = args.seed
-    noise.seed_set(SEED)
 
     output_nodes = setup_output(bpy.context.scene)
 
@@ -405,7 +406,7 @@ if __name__ == "__main__":
         item.data.materials.append(material)
 
         if SEED != 0:
-            randomizeObjVerticesAndEdges(item)
+            randomizeObj(item)
 
         vertices, edges = getObjVerticesAndEdges(item)
         meshesDict[item.name] = (vertices, edges)
