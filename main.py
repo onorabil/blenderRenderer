@@ -30,9 +30,9 @@ import bmesh
 from bpy_extras.object_utils import world_to_camera_view
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
+from mathutils import noise
 import time
 import pickle
-
 # HARDCODED STUFF
 
 
@@ -52,6 +52,9 @@ def getArgs():
     parser.add_argument('--views_x', type=int, default=30)
     parser.add_argument('--views_y', type=int, default=30)
     parser.add_argument('--views_z', type=int, default=30)
+
+    parser.add_argument('--seed', type=int, default=0,
+                        help='used to randomize vertices.')
 
     parser.add_argument('obj', type=str,
                         help='Path to the obj file to be rendered.')
@@ -96,6 +99,12 @@ def parent_obj_to_camera(b_camera):
     dg = bpy.context.evaluated_depsgraph_get()
     dg.update()
     return b_empty
+
+
+def randomizeObjVerticesAndEdges(obj):
+    for v in obj.data.vertices:
+        noise_vec = noise.random_unit_vector() / 250
+        v.co += noise_vec
 
 
 def getObjVerticesAndEdges(obj):
@@ -316,7 +325,7 @@ def render_scene(scene, cameraRig, baseDir, numViews, output_nodes, model):
                 angle_z, rad_z = stepsize_z * k, radians(stepsize_z * k)
                 cameraRig.rotation_euler[2] = rad_z
 
-                fname = model_identifier + "_render_%d_%d_%d" % (angle_x, angle_y, angle_z)
+                fname = model_identifier + "_render_%d_%d_%d_%d" % (angle_x, angle_y, angle_z, SEED)
                 scene.render.filepath = os.path.join(baseDir, fname)
                 for output_node in output_nodes:
                     output_nodes[output_node].file_slots[0].path = fname + "_" + output_node
@@ -336,6 +345,8 @@ if __name__ == "__main__":
     args = getArgs()
     fp = os.path.join(current_script_path, args.output_folder)
     MATERIAL_PATH = os.path.join(current_script_path, args.material)
+    SEED = args.seed
+    noise.seed_set(SEED)
 
     output_nodes = setup_output(bpy.context.scene)
 
@@ -380,20 +391,21 @@ if __name__ == "__main__":
     cam_constraint.target = b_empty
 
     # set material
+    # randomize vertices
+    # select vertices and edges
     lmh = Load_Material_Helper()
     _, material = lmh.build_material_from_set(bpy.context, MATERIAL_PATH)
-    for item in bpy.data.objects:
-        if item.name in ["Camera", "Empty", "Light", "Sun", "additional_light"]:
-            continue
-        item.data.materials.clear()
-        item.data.materials.append(material)
-
-    # select vertices and edges
     allEdges, allVertices = np.zeros((0, 2)), np.zeros((0, 3))
     meshesDict = {}
     for item in bpy.data.objects:
         if item.name in ["Camera", "Empty", "Light", "Sun", "additional_light"]:
             continue
+
+        item.data.materials.clear()
+        item.data.materials.append(material)
+
+        if SEED != 0:
+            randomizeObjVerticesAndEdges(item)
 
         vertices, edges = getObjVerticesAndEdges(item)
         meshesDict[item.name] = (vertices, edges)
@@ -402,7 +414,6 @@ if __name__ == "__main__":
         allVertices = np.concatenate([allVertices, vertices], axis=0)
         allEdges = np.concatenate([allEdges, edges], axis=0)
     
-
     model_identifier = os.path.split(os.path.split(args.obj)[0])[1]
 
     render_scene(scene=bpy.context.scene, cameraRig=b_empty, baseDir=fp, numViews=(args.views_x, args.views_y, args.views_z),
