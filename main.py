@@ -327,7 +327,7 @@ def render_scene(scene, cameraRig, baseDir, numViews, output_nodes, model):
                 angle_z, rad_z = stepsize_z * k, radians(stepsize_z * k)
                 cameraRig.rotation_euler[2] = rad_z
 
-                fname = model_identifier + "_render_%d_%d_%d_%d" % (angle_x, angle_y, angle_z, SEED)
+                fname = model_identifier + "_render_%d_%d_%d_%d" % (SEED, angle_x, angle_y, angle_z)
                 scene.render.filepath = os.path.join(baseDir, fname)
                 for output_node in output_nodes:
                     output_nodes[output_node].file_slots[0].path = fname + "_" + output_node
