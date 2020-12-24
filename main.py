@@ -203,6 +203,9 @@ def getDistancesToBBox(cameraRig, scene, BBox):
 
 
 def randomizeObj(obj):
+    # randomize vertices using blender's vertex_random tool, SEED is an arg
+    # 0.0025 is the maximum amount the vertices will move
+    # uniform=1 and normal=0 made the model look better than the other configs
     obj.select_set(state=True)
     bpy.context.view_layer.objects.active = obj
     bpy.ops.object.mode_set(mode='EDIT')
@@ -240,6 +243,7 @@ def setup_output(scene):
     links.new(render_layers.outputs['Depth'], depth_file_output.inputs['Image'])
 
     # Optical Flow setup
+    # Link the movement vector to the image output, movement will be encoded in the rgba
     flow_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
     flow_file_output.label = 'Optical Flow Output'
     flow_file_output.base_path = fp
