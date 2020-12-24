@@ -67,8 +67,6 @@ def getArgs():
     args = parser.parse_args(argv)
     return args
 
-# Disable
-
 
 def blockPrint():
     open(os.devnull, 'a').close()
@@ -77,8 +75,6 @@ def blockPrint():
     os.close(1)
     os.open(os.devnull, os.O_WRONLY)
     return old
-
-# Restore
 
 
 def enablePrint(old):
@@ -98,15 +94,6 @@ def parent_obj_to_camera(b_camera):
     dg = bpy.context.evaluated_depsgraph_get()
     dg.update()
     return b_empty
-
-
-def randomizeObj(obj):
-    obj.select_set(state=True)
-    bpy.context.view_layer.objects.active = obj
-    bpy.ops.object.mode_set(mode='EDIT')
-    bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.transform.vertex_random(offset=0.0025, seed=SEED, uniform=1, normal=0)
-    bpy.ops.object.mode_set(mode='OBJECT')
 
 
 def getObjVerticesAndEdges(obj):
@@ -149,8 +136,6 @@ def computeBBoxDistances(thisVertices, MinBBox, MaxBBox):
     maxDistances = MaxBBox - thisVertices
     res = np.concatenate([minDistances, maxDistances], axis=1)
     return res
-
-# Deselect mesh polygons and vertices
 
 
 def DeselectEdgesAndPolygons(obj):
@@ -215,6 +200,15 @@ def getDistancesToBBox(cameraRig, scene, BBox):
         allVertices = np.concatenate([allVertices, vertices], axis=0)
         allEdges = np.concatenate([allEdges, edges], axis=0)
     return allVertices, allEdges
+
+
+def randomizeObj(obj):
+    obj.select_set(state=True)
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.transform.vertex_random(offset=0.0025, seed=SEED, uniform=1, normal=0)
+    bpy.ops.object.mode_set(mode='OBJECT')
 
 
 def setup_output(scene):
