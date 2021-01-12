@@ -413,7 +413,7 @@ if __name__ == "__main__":
         allVertices = np.concatenate([allVertices, vertices], axis=0)
         allEdges = np.concatenate([allEdges, edges], axis=0)
     
-    model_identifier = os.path.split(os.path.split(args.obj)[0])[1] + '_' + args.material
+    model_identifier = os.path.split(os.path.split(args.obj)[0])[1]
 
     render_scene(scene=bpy.context.scene, cameraRig=b_empty, baseDir=fp, numViews=(args.views_x, args.views_y, args.views_z),
                  output_nodes=output_nodes, model=(model_identifier, allVertices, allEdges))
