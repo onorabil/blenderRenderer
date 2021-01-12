@@ -325,7 +325,7 @@ def render_scene(scene, cameraRig, baseDir, numViews, output_nodes, model):
                 angle_z, rad_z = stepsize_z * k, radians(stepsize_z * k)
                 cameraRig.rotation_euler[2] = rad_z
 
-                fname = model_identifier + "_render_%d_%d_%d_%d" % (SEED, angle_x, angle_y, angle_z)
+                fname = model_identifier + "_%d_%d_%d_%d" % (SEED, angle_x, angle_y, angle_z)
                 scene.render.filepath = os.path.join(baseDir, fname)
                 for output_node in output_nodes:
                     output_nodes[output_node].file_slots[0].path = fname + "_" + output_node
@@ -413,7 +413,7 @@ if __name__ == "__main__":
         allVertices = np.concatenate([allVertices, vertices], axis=0)
         allEdges = np.concatenate([allEdges, edges], axis=0)
     
-    model_identifier = os.path.split(os.path.split(args.obj)[0])[1]
+    model_identifier = os.path.split(os.path.split(args.obj)[0])[1] + '_' + args.material
 
     render_scene(scene=bpy.context.scene, cameraRig=b_empty, baseDir=fp, numViews=(args.views_x, args.views_y, args.views_z),
                  output_nodes=output_nodes, model=(model_identifier, allVertices, allEdges))
