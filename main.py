@@ -63,6 +63,8 @@ def getArgs():
                         help='Number of bit per channel used for output. Either 8 or 16.')
     parser.add_argument('--material', type=str,
                         help='Material name. Check README.md')
+    parser.add_argument('--output_name', type=str,
+                        help='name of the output file')
     argv = sys.argv[sys.argv.index("--") + 1:]
     args = parser.parse_args(argv)
     return args
@@ -346,6 +348,7 @@ if __name__ == "__main__":
     fp = os.path.join(current_script_path, args.output_folder)
     MATERIAL_PATH = os.path.join(current_script_path, args.material)
     SEED = args.seed
+    OUTPUT_NAME = args.output_name
 
     output_nodes = setup_output(bpy.context.scene)
 
@@ -413,7 +416,10 @@ if __name__ == "__main__":
         allVertices = np.concatenate([allVertices, vertices], axis=0)
         allEdges = np.concatenate([allEdges, edges], axis=0)
     
-    model_identifier = os.path.split(os.path.split(args.obj)[0])[1]
+    if not OUTPUT_NAME:
+        model_identifier = os.path.split(os.path.split(args.obj)[0])[1] + "_" + os.path.split(args.material)[1]
+    else:
+        model_identifier = OUTPUT_NAME
 
     render_scene(scene=bpy.context.scene, cameraRig=b_empty, baseDir=fp, numViews=(args.views_x, args.views_y, args.views_z),
                  output_nodes=output_nodes, model=(model_identifier, allVertices, allEdges))
