@@ -296,6 +296,13 @@ def generate_materials(material_paths: List[str]):
     return materials
 
 
+def replace_materials(obj, materials):
+    i = 0
+    while i < len(obj.data.materials) and i < len(materials):
+        obj.data.materials[i] = materials[i]
+        i = i + 1
+
+
 def setup_models(materials, seed, ignore_items):
     # set material
     # randomize vertices
@@ -307,11 +314,8 @@ def setup_models(materials, seed, ignore_items):
         if item in ignore_items:
             continue
 
-        item.data.materials.clear()
-        for material in materials:
-            item.data.materials.append(material)
-
-        randomize_vertices(item, seed=seed)
+        replace_materials(obj=item, materials=materials)
+        randomize_vertices(obj=item, seed=seed)
 
         vertices, edges = get_vertices_and_edges(item)
         mesh_data[item] = (vertices, edges)
