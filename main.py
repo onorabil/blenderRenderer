@@ -97,110 +97,11 @@ def parent_obj_to_camera(b_camera):
     return b_empty
 
 
-def getObjVerticesAndEdges(obj):
+def get_vertices_and_edges(obj):
     vertices = np.array([list((obj.matrix_world @ v.co))
                          for v in obj.data.vertices])
     edges = np.array([list(i.vertices) for i in obj.data.edges])
     return vertices, edges
-
-
-def getVisibleObjVerticesAndEdges(cameraRig, scene, obj):
-    obj = DeselectEdgesAndPolygons(obj)
-    obj = select_visible_vertices(cameraRig, scene, obj)
-
-    mapVertices = [0] * len(obj.data.vertices)
-    currentVertices = 0
-    filteredVertices = []
-
-    for i, vertex in enumerate(obj.data.vertices):
-        if not vertex.select:
-            continue
-        mapVertices[i] = currentVertices
-        filteredVertices.append(vertex)
-        currentVertices += 1
-    vertices = np.array([list((obj.matrix_world @ v.co))
-                         for v in filteredVertices])
-
-    edges = []
-    for i, edge in enumerate(obj.data.edges):
-        if not edge.select and (obj.data.vertices[edge.vertices[0]].select and obj.data.vertices[edge.vertices[1]].select):
-            new_v1, new_v2 = mapVertices[edge.vertices[0]
-                                         ], mapVertices[edge.vertices[1]]
-            edges.append((new_v1, new_v2))
-
-    edges = np.array(edges)
-    return vertices, edges
-
-
-def computeBBoxDistances(thisVertices, MinBBox, MaxBBox):
-    minDistances = thisVertices - MinBBox
-    maxDistances = MaxBBox - thisVertices
-    res = np.concatenate([minDistances, maxDistances], axis=1)
-    return res
-
-
-def DeselectEdgesAndPolygons(obj):
-    for p in obj.data.polygons:
-        p.select = False
-    for e in obj.data.edges:
-        e.select = False
-    return obj
-
-
-# Create a BVH tree and return bvh and vertices in world coordinates
-def BVHTreeAndVerticesInWorldFromObj(obj):
-    mWorld = obj.matrix_world
-    vertsInWorld = [mWorld @ v.co for v in obj.data.vertices]
-    bvh = BVHTree.FromPolygons(
-        vertsInWorld, [p.vertices for p in obj.data.polygons])
-    return bvh, vertsInWorld
-
-
-def select_visible_vertices(cameraRig, scene, obj):
-    # Threshold to test if ray cast corresponds to the original vertex
-    limit = 0.0001
-    # In world coordinates, get a bvh tree and vertices
-    camera = cameraRig.children[0]
-    print(camera)
-
-    bvh, vertices = BVHTreeAndVerticesInWorldFromObj(obj)
-    for i, v in enumerate(vertices):
-        # Get the 2D projection of the vertex
-        co2D = world_to_camera_view(scene, camera, v)
-
-        # By default, deselect it
-        obj.data.vertices[i].select = False
-
-        # If inside the camera view
-        if 0.0 <= co2D.x <= 1.0 and 0.0 <= co2D.y <= 1.0:
-            # Try a ray cast, in order to test the vertex visibility from the camera
-            location, normal, index, distance = bvh.ray_cast(
-                cameraRig.location, (v - cameraRig.location).normalized())
-            # If the ray hits something and if this hit is close to the vertex, we assume this is the vertex
-            if location and (v - location).length < limit:
-                obj.data.vertices[i].select = True
-    return obj
-
-
-def getDistancesToBBox(cameraRig, scene, BBox):
-    MinBBox, MaxBBox = BBox
-    distancesDict = {}
-    meshesDict = {}
-
-    allEdges, allVertices = np.zeros((0, 2)), np.zeros((0, 3))
-    for item in bpy.data.objects:
-        if item.name in ["Camera", "Empty", "Light", "Sun", "additional_light"]:
-            continue
-        # need vertices selected here
-        # WTF ???
-        vertices, edges = getVisibleObjVerticesAndEdges(cameraRig, scene, item)
-        print('selected vertices', len(vertices))
-        print('selected edges', len(edges))
-        if len(vertices) == 0 or len(edges) == 0:
-            continue
-        allVertices = np.concatenate([allVertices, vertices], axis=0)
-        allEdges = np.concatenate([allEdges, edges], axis=0)
-    return allVertices, allEdges
 
 
 def randomize_vertices(obj, seed):
@@ -316,7 +217,6 @@ def render_scene(scene, cameraRig, baseDir, numViews, output_nodes, model):
     model_identifier, allVertices, allEdges = model
     views_x, views_y, views_z = numViews
     stepsize_x, stepsize_y, stepsize_z = 360 // views_x, 360 // views_y, 360 // views_z
-    BBox = np.min(allVertices, axis=0), np.max(allVertices, axis=0)
 
     for i in range(views_x):
         angle_x, rad_x = stepsize_x * i, radians(stepsize_x * i)
@@ -335,9 +235,8 @@ def render_scene(scene, cameraRig, baseDir, numViews, output_nodes, model):
 
                 dump_pkl(scene, allVertices, allEdges)
 
-                vertices, edges = getDistancesToBBox(cameraRig, scene, BBox)
                 print("Rotation. X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). Vertices: %d. Edges: %d" %
-                      (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, len(vertices), len(edges)))
+                      (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, len(allVertices), len(allEdges)))
 
                 old = blockPrint()
                 bpy.ops.render.render(write_still=True)
@@ -414,7 +313,7 @@ def setup_models(materials, seed, ignore_items):
 
         randomize_vertices(item, seed=seed)
 
-        vertices, edges = getObjVerticesAndEdges(item)
+        vertices, edges = get_vertices_and_edges(item)
         mesh_data[item] = (vertices, edges)
         if vertices.shape[0] == 0:
             continue
