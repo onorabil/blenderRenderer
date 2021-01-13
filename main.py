@@ -32,6 +32,7 @@ from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 import time
 import pickle
+from typing import List
 # HARDCODED STUFF
 
 
@@ -40,8 +41,6 @@ sys.path.append(current_script_path)
 
 
 from poliigon_converter import PMC_workflow as Load_Material_Helper
-
-# from Mihlib import *
 
 
 def getArgs():
@@ -61,9 +60,9 @@ def getArgs():
                         help='The path the output will be dumped to.')
     parser.add_argument('--color_depth', type=str, default='8',
                         help='Number of bit per channel used for output. Either 8 or 16.')
-    parser.add_argument('--material', type=str,
+    parser.add_argument('--material', type=str, nargs='+',
                         help='Material name. Check README.md')
-    parser.add_argument('--output_name', type=str,
+    parser.add_argument('--output_name', type=str, default='out',
                         help='name of the output file')
     argv = sys.argv[sys.argv.index("--") + 1:]
     args = parser.parse_args(argv)
@@ -204,19 +203,21 @@ def getDistancesToBBox(cameraRig, scene, BBox):
     return allVertices, allEdges
 
 
-def randomizeObj(obj):
+def randomize_vertices(obj, seed):
     # randomize vertices using blender's vertex_random tool, SEED is an arg
     # 0.0025 is the maximum amount the vertices will move
     # uniform=1 and normal=0 made the model look better than the other configs
+    if seed == 0:
+        return
     obj.select_set(state=True)
     bpy.context.view_layer.objects.active = obj
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.transform.vertex_random(offset=0.0025, seed=SEED, uniform=1, normal=0)
+    bpy.ops.transform.vertex_random(offset=0.0025, seed=seed, uniform=1, normal=0)
     bpy.ops.object.mode_set(mode='OBJECT')
 
 
-def setup_output(scene):
+def setup_output(scene, fp):
     scene.render.engine = 'CYCLES'
     scene.render.resolution_x = 600
     scene.render.resolution_y = 600
@@ -343,20 +344,7 @@ def render_scene(scene, cameraRig, baseDir, numViews, output_nodes, model):
                 enablePrint(old)
 
 
-if __name__ == "__main__":
-    args = getArgs()
-    fp = os.path.join(current_script_path, args.output_folder)
-    MATERIAL_PATH = os.path.join(current_script_path, args.material)
-    SEED = args.seed
-    OUTPUT_NAME = args.output_name
-
-    output_nodes = setup_output(bpy.context.scene)
-
-    bpy.data.objects['Cube'].select_set(state=True)
-    bpy.ops.object.delete()
-
-    bpy.ops.import_scene.obj(filepath=args.obj)
-
+def setup_lights():
     # Make light just directional, disable shadows.
     light = bpy.data.lights['Light']
     light.type = 'SUN'
@@ -377,49 +365,83 @@ if __name__ == "__main__":
     light_data = bpy.data.lights.new(name="additional_light", type='POINT')
     light_data.cycles.cast_shadow = True
     light_data.use_nodes = True
-    light_data.node_tree.nodes['Emission'].inputs[1].default_value = np.random.randint(2)
-    light_object = bpy.data.objects.new(name="additional_light", object_data=light_data)
+    light_data.node_tree.nodes['Emission'].inputs[1].default_value = np.random.randint(
+        2)
+    light_object = bpy.data.objects.new(
+        name="additional_light", object_data=light_data)
     bpy.context.collection.objects.link(light_object)
-    light_object.location = (np.random.randint(2), np.random.randint(2), np.random.randint(2))
+    light_object.location = (np.random.randint(
+        2), np.random.randint(2), np.random.randint(2))
 
+    return [bpy.data.objects['Light'], bpy.data.objects['Sun'],  bpy.data.objects['additional_light']]
+
+
+def create_camera_rig():
     # Scene stuff
-    scene = bpy.context.scene
-    cam = scene.objects['Camera']
+    cam = bpy.context.scene.objects['Camera']
     cam.location = (0, 1, 0.6)
     cam_constraint = cam.constraints.new(type='TRACK_TO')
     cam_constraint.track_axis = 'TRACK_NEGATIVE_Z'
     cam_constraint.up_axis = 'UP_Y'
     b_empty = parent_obj_to_camera(cam)
     cam_constraint.target = b_empty
+    return cam, b_empty
 
+
+def generate_materials(material_paths: List[str]):
+    lmh = Load_Material_Helper()
+    materials = []
+    for material_path in material_paths:
+        _, material = lmh.build_material_from_set(bpy.context, material_path)
+        materials.append(material)
+    return materials
+
+
+def setup_models(materials, seed, ignore_items):
     # set material
     # randomize vertices
     # select vertices and edges
-    lmh = Load_Material_Helper()
-    _, material = lmh.build_material_from_set(bpy.context, MATERIAL_PATH)
-    allEdges, allVertices = np.zeros((0, 2)), np.zeros((0, 3))
-    meshesDict = {}
+    all_edges, all_vertices = np.zeros((0, 2)), np.zeros((0, 3))
+    mesh_data = {}
+
     for item in bpy.data.objects:
-        if item.name in ["Camera", "Empty", "Light", "Sun", "additional_light"]:
+        if item in ignore_items:
             continue
 
         item.data.materials.clear()
-        item.data.materials.append(material)
+        for material in materials:
+            item.data.materials.append(material)
 
-        if SEED != 0:
-            randomizeObj(item)
+        randomize_vertices(item, seed=seed)
 
         vertices, edges = getObjVerticesAndEdges(item)
-        meshesDict[item.name] = (vertices, edges)
+        mesh_data[item] = (vertices, edges)
         if vertices.shape[0] == 0:
             continue
-        allVertices = np.concatenate([allVertices, vertices], axis=0)
-        allEdges = np.concatenate([allEdges, edges], axis=0)
-    
-    if not OUTPUT_NAME:
-        model_identifier = os.path.split(os.path.split(args.obj)[0])[1] + "_" + os.path.split(args.material)[1]
-    else:
-        model_identifier = OUTPUT_NAME
+        all_vertices = np.concatenate([all_vertices, vertices], axis=0)
+        all_edges = np.concatenate([all_edges, edges], axis=0)
+    return all_vertices, all_edges
 
-    render_scene(scene=bpy.context.scene, cameraRig=b_empty, baseDir=fp, numViews=(args.views_x, args.views_y, args.views_z),
-                 output_nodes=output_nodes, model=(model_identifier, allVertices, allEdges))
+
+if __name__ == "__main__":
+    ARGS = getArgs()
+    OUTPUT_PATH = os.path.join(current_script_path, ARGS.output_folder)
+
+    OUTPUT_NODES = setup_output(bpy.context.scene, fp=OUTPUT_PATH)
+
+    bpy.data.objects['Cube'].select_set(state=True)
+    bpy.ops.object.delete()
+    bpy.ops.import_scene.obj(filepath=ARGS.obj)
+
+    LIGHTS = setup_lights()
+    CAMERA, CAMERA_RIG = create_camera_rig()
+
+    MATERIAL_PATHS = list(map(lambda material_path: os.path.join(current_script_path, material_path), ARGS.material))
+    MATERIALS = generate_materials(MATERIAL_PATHS)
+    SEED = ARGS.seed
+    ALL_VERTICES, ALL_EDGES = setup_models(materials=MATERIALS, seed=SEED, ignore_items=[CAMERA, CAMERA_RIG] + LIGHTS)
+    OUTPUT_NAME = ARGS.output_name
+
+    render_scene(scene=bpy.context.scene, cameraRig=CAMERA_RIG, baseDir=OUTPUT_PATH, 
+                numViews=(ARGS.views_x, ARGS.views_y, ARGS.views_z), output_nodes=OUTPUT_NODES, 
+                model=(OUTPUT_NAME, ALL_VERTICES, ALL_EDGES))
