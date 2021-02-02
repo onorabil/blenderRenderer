@@ -235,8 +235,8 @@ def render_scene(scene, cameraRig, baseDir, numViews, output_nodes, model):
 
                 dump_pkl(scene, allVertices, allEdges)
 
-                print("Rotation. X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). Vertices: %d. Edges: %d" %
-                      (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, len(allVertices), len(allEdges)))
+                print("%s => Rotation X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). Vertices: %d. Edges: %d" %
+                      (model_identifier, angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, len(allVertices), len(allEdges)))
 
                 old = blockPrint()
                 bpy.ops.render.render(write_still=True)
