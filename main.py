@@ -112,13 +112,11 @@ def get_vertices_and_edges(obj):
     return vertices, edges
 
 
-def get_camera_BBox(camera, scene, model):
-    _, allVertices, _ = model
-
+def get_BBox(camera, scene, vertices):
     minX, maxX = np.inf, -np.inf
     minY, maxY = np.inf, -np.inf 
 
-    for v in allVertices:
+    for v in vertices:
         co2D = world_to_camera_view(scene, camera, Vector(v))
         if minX > co2D[0]:
             minX = co2D[0]
@@ -128,8 +126,18 @@ def get_camera_BBox(camera, scene, model):
             minY = co2D[1]
         if maxY < co2D[1]:
             maxY = co2D[1]
-    
+
     return minX, maxX, minY, maxY
+
+def get_camera_BBox(camera, scene, model):
+    _, allVertices, _, mesh_data = model
+    BBoxes = []
+
+    for mesh in mesh_data:
+        vertices, _ = mesh_data[mesh]
+        BBoxes = BBoxes + [get_BBox(camera=camera, scene=scene, vertices=vertices)]
+
+    return get_BBox(camera=camera, scene=scene, vertices=allVertices), BBoxes
 
 
 def randomize_vertices(obj, seed):
@@ -207,7 +215,7 @@ def setup_output(scene, fp):
     return {"depth": depth_file_output, "flow": flow_file_output, "normal": normal_file_output, "albedo": albedo_file_output}
 
 
-def dump_pkl(scene, allVertices, allEdges, bbox, rotation, fname):
+def dump_pkl(scene, allVertices, allEdges, bbox, bboxes, rotation, fname):
     dg = bpy.context.evaluated_depsgraph_get()
 
     modelview_matrix = scene.objects['Camera'].matrix_world
@@ -236,15 +244,16 @@ def dump_pkl(scene, allVertices, allEdges, bbox, rotation, fname):
         transformedVertices[idx, :] = vertex[:-1]
         idx += 1
 
-    pickle.dump(bbox, pklFile)
     pickle.dump(rotation, pklFile)
+    pickle.dump(bbox, pklFile)
+    pickle.dump(bboxes, pklFile)
     pickle.dump(transformedVertices, pklFile)
     pickle.dump(allEdges.astype(np.int), pklFile)
     pklFile.close()
 
 
-def render_scene(scene, cameraRig, baseDir, numViews, output_nodes, model):
-    model_identifier, allVertices, allEdges = model
+def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, model):
+    model_identifier, allVertices, allEdges, _ = model
     views_x, views_y, views_z = numViews
     stepsize_x, stepsize_y, stepsize_z = 180 // views_x, 360 // views_y, 360 // views_z
 
@@ -264,8 +273,8 @@ def render_scene(scene, cameraRig, baseDir, numViews, output_nodes, model):
                 for output_node in output_nodes:
                     output_nodes[output_node].file_slots[0].path = fname + "_" + output_node
 
-                BBox = get_camera_BBox(camera=CAMERA, scene=scene, model=model)
-                dump_pkl(scene, allVertices, allEdges, BBox, (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z), os.path.join(baseDir, fname))
+                BBox, BBoxes = get_camera_BBox(camera=camera, scene=scene, model=model)
+                dump_pkl(scene, allVertices, allEdges, BBox, BBoxes, (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z), os.path.join(baseDir, fname))
 
                 print("Rotation X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). BBox: %s. Vertices: %d. Edges: %d" %
                       (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, BBox, len(allVertices), len(allEdges)))
@@ -342,7 +351,7 @@ def replace_materials(obj, materials):
         i = i + 1
 
 
-def setup_models(materials, seed, ignore_items):
+def setup_objects(materials, seed, ignore_items):
     # set material
     # randomize vertices
     # select vertices and edges
@@ -362,7 +371,7 @@ def setup_models(materials, seed, ignore_items):
             continue
         all_vertices = np.concatenate([all_vertices, vertices], axis=0)
         all_edges = np.concatenate([all_edges, edges], axis=0)
-    return all_vertices, all_edges
+    return all_vertices, all_edges, mesh_data
 
 
 if __name__ == "__main__":
@@ -384,9 +393,9 @@ if __name__ == "__main__":
     MATERIAL_PATHS = list(map(lambda material_path: os.path.join(current_script_path, material_path), ARGS.material))
     MATERIALS = generate_materials(MATERIAL_PATHS)
     SEED = ARGS.seed
-    ALL_VERTICES, ALL_EDGES = setup_models(materials=MATERIALS, seed=SEED, ignore_items=[CAMERA, CAMERA_RIG] + LIGHTS)
+    ALL_VERTICES, ALL_EDGES, MESH_DATA = setup_objects(materials=MATERIALS, seed=SEED, ignore_items=[CAMERA, CAMERA_RIG] + LIGHTS)
     OUTPUT_NAME = ARGS.output_name
 
-    render_scene(scene=bpy.context.scene, cameraRig=CAMERA_RIG, baseDir=OUTPUT_PATH, 
+    render_scene(scene=bpy.context.scene, cameraRig=CAMERA_RIG, camera=CAMERA, baseDir=OUTPUT_PATH, 
                 numViews=(ARGS.views_x, ARGS.views_y, ARGS.views_z), output_nodes=OUTPUT_NODES, 
-                model=(OUTPUT_NAME, ALL_VERTICES, ALL_EDGES))
+                model=(OUTPUT_NAME, ALL_VERTICES, ALL_EDGES, MESH_DATA))
