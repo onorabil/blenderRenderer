@@ -255,11 +255,11 @@ def dump_pkl(scene, allVertices, allEdges, bbox, bboxes, rotation, fname):
 def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, model):
     model_identifier, allVertices, allEdges, _ = model
     views_x, views_y, views_z = numViews
-    stepsize_x, stepsize_y, stepsize_z = 180 // views_x, 360 // views_y, 360 // views_z
+    stepsize_x, stepsize_y, stepsize_z = 170 // views_x, 360 // views_y, 360 // views_z
 
     print("Rendering %s" % (model_identifier))
     index = 0
-    for angle_x in range(-90, 90, stepsize_x):
+    for angle_x in range(-85, 85, stepsize_x):
         rad_x = radians(angle_x)
         cameraRig.rotation_euler[0] = rad_x
         for angle_y in range(0, 360, stepsize_y):
