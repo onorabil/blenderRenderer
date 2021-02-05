@@ -248,6 +248,7 @@ def render_scene(scene, cameraRig, baseDir, numViews, output_nodes, model):
     views_x, views_y, views_z = numViews
     stepsize_x, stepsize_y, stepsize_z = 180 // views_x, 360 // views_y, 360 // views_z
 
+    print("Rendering %s" % (model_identifier))
     for angle_x in range(0, 180, stepsize_x):
         rad_x = radians(angle_x)
         cameraRig.rotation_euler[0] = rad_x
@@ -266,8 +267,8 @@ def render_scene(scene, cameraRig, baseDir, numViews, output_nodes, model):
                 BBox = get_camera_BBox(camera=CAMERA, scene=scene, model=model)
                 dump_pkl(scene, allVertices, allEdges, BBox, (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z), os.path.join(baseDir, fname))
 
-                print("%s => Rotation X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). BBox: %s. Vertices: %d. Edges: %d" %
-                      (model_identifier, angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, BBox, len(allVertices), len(allEdges)))
+                print("Rotation X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). BBox: %s. Vertices: %d. Edges: %d" %
+                      (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, BBox, len(allVertices), len(allEdges)))
 
                 old = blockPrint()
                 bpy.ops.render.render(write_still=True)
@@ -324,8 +325,12 @@ def create_camera_rig():
 def generate_materials(material_paths: List[str]):
     lmh = Load_Material_Helper()
     materials = []
+    print("Generating materials")
     for material_path in material_paths:
+        old = blockPrint()
         _, material = lmh.build_material_from_set(bpy.context, material_path)
+        enablePrint(old)
+        print(material)
         materials.append(material)
     return materials
 
@@ -366,9 +371,12 @@ if __name__ == "__main__":
 
     OUTPUT_NODES = setup_output(bpy.context.scene, fp=OUTPUT_PATH)
 
+    old = blockPrint()
     bpy.data.objects['Cube'].select_set(state=True)
     bpy.ops.object.delete()
     bpy.ops.import_scene.obj(filepath=ARGS.obj)
+    enablePrint(old)
+    print("Imported %s" % (ARGS.obj))
 
     LIGHTS = setup_lights()
     CAMERA, CAMERA_RIG = create_camera_rig()
