@@ -84,6 +84,14 @@ def enablePrint(old):
     os.close(old)
 
 
+def remove_frame_number(fname):
+    outRenderFileNamePadded = fname+"0001.exr"
+    outRenderFileName = fname+".exr"
+    if os.path.exists(outRenderFileName):
+        os.remove(outRenderFileName)
+    os.rename(outRenderFileNamePadded, outRenderFileName)
+
+
 def parent_obj_to_camera(b_camera):
     origin = (0, 0, 0)
     b_empty = bpy.data.objects.new("Empty", None)
@@ -102,6 +110,26 @@ def get_vertices_and_edges(obj):
                          for v in obj.data.vertices])
     edges = np.array([list(i.vertices) for i in obj.data.edges])
     return vertices, edges
+
+
+def get_camera_BBox(camera, scene, model):
+    _, allVertices, _ = model
+
+    minX, maxX = np.inf, -np.inf
+    minY, maxY = np.inf, -np.inf 
+
+    for v in allVertices:
+        co2D = world_to_camera_view(scene, camera, Vector(v))
+        if minX > co2D[0]:
+            minX = co2D[0]
+        if maxX < co2D[0]:
+            maxX = co2D[0]
+        if minY > co2D[1]:
+            minY = co2D[1]
+        if maxY < co2D[1]:
+            maxY = co2D[1]
+    
+    return minX, maxX, minY, maxY
 
 
 def randomize_vertices(obj, seed):
@@ -179,7 +207,7 @@ def setup_output(scene, fp):
     return {"depth": depth_file_output, "flow": flow_file_output, "normal": normal_file_output, "albedo": albedo_file_output}
 
 
-def dump_pkl(scene, allVertices, allEdges):
+def dump_pkl(scene, allVertices, allEdges, bbox, rotation, fname):
     dg = bpy.context.evaluated_depsgraph_get()
 
     modelview_matrix = scene.objects['Camera'].matrix_world
@@ -196,7 +224,7 @@ def dump_pkl(scene, allVertices, allEdges):
     inv_projection_matrix = projection_matrix.copy()
     inv_projection_matrix.invert()
 
-    pklFile = open(scene.render.filepath + '.pkl', "wb")
+    pklFile = open(fname + '.pkl', "wb")
 
     transformedVertices = np.zeros(allVertices.shape)
 
@@ -208,6 +236,8 @@ def dump_pkl(scene, allVertices, allEdges):
         transformedVertices[idx, :] = vertex[:-1]
         idx += 1
 
+    pickle.dump(bbox, pklFile)
+    pickle.dump(rotation, pklFile)
     pickle.dump(transformedVertices, pklFile)
     pickle.dump(allEdges.astype(np.int), pklFile)
     pklFile.close()
@@ -216,31 +246,35 @@ def dump_pkl(scene, allVertices, allEdges):
 def render_scene(scene, cameraRig, baseDir, numViews, output_nodes, model):
     model_identifier, allVertices, allEdges = model
     views_x, views_y, views_z = numViews
-    stepsize_x, stepsize_y, stepsize_z = 360 // views_x, 360 // views_y, 360 // views_z
+    stepsize_x, stepsize_y, stepsize_z = 180 // views_x, 360 // views_y, 360 // views_z
 
-    for i in range(views_x):
-        angle_x, rad_x = stepsize_x * i, radians(stepsize_x * i)
+    for angle_x in range(0, 180, stepsize_x):
+        rad_x = radians(angle_x)
         cameraRig.rotation_euler[0] = rad_x
-        for j in range(views_y):
-            angle_y, rad_y = stepsize_y * j, radians(stepsize_y * j)
+        for angle_y in range(0, 360, stepsize_y):
+            rad_y = radians(angle_y)
             cameraRig.rotation_euler[1] = rad_y
-            for k in range(views_z):
-                angle_z, rad_z = stepsize_z * k, radians(stepsize_z * k)
+            for angle_z in range(0, 360, stepsize_z):
+                rad_z = radians(angle_z)
                 cameraRig.rotation_euler[2] = rad_z
 
                 fname = model_identifier + "_%d_%d_%d_%d" % (SEED, angle_x, angle_y, angle_z)
-                scene.render.filepath = os.path.join(baseDir, fname)
+                scene.render.filepath = os.path.join(baseDir, fname + "_render")
                 for output_node in output_nodes:
                     output_nodes[output_node].file_slots[0].path = fname + "_" + output_node
 
-                dump_pkl(scene, allVertices, allEdges)
+                BBox = get_camera_BBox(camera=CAMERA, scene=scene, model=model)
+                dump_pkl(scene, allVertices, allEdges, BBox, (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z), os.path.join(baseDir, fname))
 
-                print("%s => Rotation X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). Vertices: %d. Edges: %d" %
-                      (model_identifier, angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, len(allVertices), len(allEdges)))
+                print("%s => Rotation X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). BBox: %s. Vertices: %d. Edges: %d" %
+                      (model_identifier, angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, BBox, len(allVertices), len(allEdges)))
 
                 old = blockPrint()
                 bpy.ops.render.render(write_still=True)
                 enablePrint(old)
+
+                for output_node in output_nodes:
+                    remove_frame_number(os.path.join(output_nodes[output_node].base_path, output_nodes[output_node].file_slots[0].path))
 
 
 def setup_lights():
