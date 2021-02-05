@@ -258,7 +258,8 @@ def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, mode
     stepsize_x, stepsize_y, stepsize_z = 180 // views_x, 360 // views_y, 360 // views_z
 
     print("Rendering %s" % (model_identifier))
-    for angle_x in range(0, 180, stepsize_x):
+    index = 0
+    for angle_x in range(-90, 90, stepsize_x):
         rad_x = radians(angle_x)
         cameraRig.rotation_euler[0] = rad_x
         for angle_y in range(0, 360, stepsize_y):
@@ -268,7 +269,8 @@ def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, mode
                 rad_z = radians(angle_z)
                 cameraRig.rotation_euler[2] = rad_z
 
-                fname = model_identifier + "_%d_%d_%d_%d" % (SEED, angle_x, angle_y, angle_z)
+                fname = model_identifier + "_%d_%04d" % (SEED, index)
+                index = index + 1
                 scene.render.filepath = os.path.join(baseDir, fname + "_render")
                 for output_node in output_nodes:
                     output_nodes[output_node].file_slots[0].path = fname + "_" + output_node
@@ -322,7 +324,8 @@ def setup_lights():
 def create_camera_rig():
     # Scene stuff
     cam = bpy.context.scene.objects['Camera']
-    cam.location = (0, 1, 0.6)
+    cam.location = (0, 1, 0)
+    cam.rotation_euler = (np.pi / 2, 0, np.pi)
     cam_constraint = cam.constraints.new(type='TRACK_TO')
     cam_constraint.track_axis = 'TRACK_NEGATIVE_Z'
     cam_constraint.up_axis = 'UP_Y'
