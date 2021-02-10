@@ -1,4 +1,6 @@
 materials
+models
+commands.txt
 __pycache__
 .vscode
 commands.bat
