@@ -26,13 +26,9 @@ import bpy
 import sys
 from math import radians
 import numpy as np
-import bmesh
 from bpy_extras.object_utils import world_to_camera_view
 from mathutils import Vector
-from mathutils.bvhtree import BVHTree
-import time
 import pickle
-from typing import List
 # HARDCODED STUFF
 
 
@@ -335,7 +331,7 @@ def create_camera_rig():
     return cam, b_empty
 
 
-def generate_materials(material_paths: List[str]):
+def generate_materials(material_paths):
     lmh = Load_Material_Helper()
     materials = []
     print("Generating materials")
