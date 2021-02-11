@@ -29,6 +29,7 @@ import numpy as np
 from bpy_extras.object_utils import world_to_camera_view
 from mathutils import Vector
 import pickle
+import json
 # HARDCODED STUFF
 
 
@@ -83,6 +84,8 @@ def enablePrint(old):
 def remove_frame_number(fname):
     outRenderFileNamePadded = fname+"0001.exr"
     outRenderFileName = fname+".exr"
+    if not os.path.exists(outRenderFileNamePadded):
+        return
     if os.path.exists(outRenderFileName):
         os.remove(outRenderFileName)
     os.rename(outRenderFileNamePadded, outRenderFileName)
@@ -249,6 +252,17 @@ def dump_pkl(scene, allVertices, allEdges, bbox, bboxes, rotation, fname):
     pklFile.close()
 
 
+def dump_json(model_identifier, bbox, bboxes, rotation, fname):
+    data = {}
+    data['name'] = model_identifier
+    data['rotation'] = rotation
+    data['bbox'] = bbox
+    data['bboxes'] = bboxes
+
+    with open(fname + '.json', 'w') as json_file:
+        json.dump(data, json_file)
+
+
 def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, model):
     model_identifier, allVertices, allEdges, _ = model
     views_x, views_y, views_z = numViews
@@ -266,17 +280,18 @@ def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, mode
                 rad_z = radians(angle_z)
                 cameraRig.rotation_euler[2] = rad_z
 
-                fname = model_identifier + "_%d_%04d" % (SEED, index)
+                fname = model_identifier + "_%04d_%04d" % (SEED, index)
                 index = index + 1
                 scene.render.filepath = os.path.join(baseDir, fname + "_render")
                 for output_node in output_nodes:
                     output_nodes[output_node].file_slots[0].path = fname + "_" + output_node
 
-                BBox, BBoxes = get_camera_BBox(camera=camera, scene=scene, model=model)
-                dump_pkl(scene, allVertices, allEdges, BBox, BBoxes, (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z), os.path.join(baseDir, fname))
+                bbox, bboxes = get_camera_BBox(camera=camera, scene=scene, model=model)
+                # dump_pkl(scene, allVertices, allEdges, bbox, bboxes, (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z), os.path.join(baseDir, fname))
+                dump_json(model_identifier, bbox, bboxes, [angle_x, rad_x, angle_y, rad_y, angle_z, rad_z], os.path.join(baseDir, fname))
 
                 print("Rotation X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). BBox: %s. Vertices: %d. Edges: %d" %
-                      (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, BBox, len(allVertices), len(allEdges)))
+                      (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, bbox, len(allVertices), len(allEdges)))
 
                 old = blockPrint()
                 bpy.ops.render.render(write_still=True)
