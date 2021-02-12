@@ -1,0 +1,11 @@
+bpy
+bpy_extras
+numpy
+mathutils
+pickle
+OpenEXR
+Imath
+csv
+h5py
+matplotlib
+cv2
