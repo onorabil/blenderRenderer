@@ -252,18 +252,19 @@ def dump_pkl(scene, allVertices, allEdges, bbox, bboxes, rotation, fname):
     pklFile.close()
 
 
-def dump_json(model_identifier, bbox, bboxes, rotation, fname):
+def dump_json(model_identifier, bbox, bboxes, rotation, seed, fname):
     data = {}
     data['name'] = model_identifier
     data['rotation'] = rotation
     data['bbox'] = bbox
     data['bboxes'] = bboxes
+    data['seed'] = seed
 
     with open(fname + '.json', 'w') as json_file:
         json.dump(data, json_file)
 
 
-def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, model):
+def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, model, seed):
     model_identifier, allVertices, allEdges, _ = model
     views_x, views_y, views_z = numViews
     stepsize_x, stepsize_y, stepsize_z = -170 // views_x, 360 // views_y, 360 // views_z
@@ -280,7 +281,7 @@ def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, mode
                 rad_z = radians(angle_z)
                 cameraRig.rotation_euler[2] = rad_z
 
-                fname = model_identifier + "_%04d_%04d" % (SEED, index)
+                fname = model_identifier + "_%04d" % (index)
                 index = index + 1
                 scene.render.filepath = os.path.join(baseDir, fname + "_render")
                 for output_node in output_nodes:
@@ -288,7 +289,7 @@ def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, mode
 
                 bbox, bboxes = get_camera_BBox(camera=camera, scene=scene, model=model)
                 # dump_pkl(scene, allVertices, allEdges, bbox, bboxes, (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z), os.path.join(baseDir, fname))
-                dump_json(model_identifier, bbox, bboxes, [angle_x, rad_x, angle_y, rad_y, angle_z, rad_z], os.path.join(baseDir, fname))
+                dump_json(model_identifier, bbox, bboxes, [angle_x, rad_x, angle_y, rad_y, angle_z, rad_z], seed, os.path.join(baseDir, fname))
 
                 print("Rotation X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). BBox: %s. Vertices: %d. Edges: %d" %
                       (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, bbox, len(allVertices), len(allEdges)))
@@ -413,4 +414,4 @@ if __name__ == "__main__":
 
     render_scene(scene=bpy.context.scene, cameraRig=CAMERA_RIG, camera=CAMERA, baseDir=OUTPUT_PATH, 
                 numViews=(ARGS.views_x, ARGS.views_y, ARGS.views_z), output_nodes=OUTPUT_NODES, 
-                model=(OUTPUT_NAME, ALL_VERTICES, ALL_EDGES, MESH_DATA))
+                model=(OUTPUT_NAME, ALL_VERTICES, ALL_EDGES, MESH_DATA), seed=SEED)
