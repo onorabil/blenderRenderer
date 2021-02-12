@@ -252,15 +252,17 @@ def dump_pkl(scene, allVertices, allEdges, bbox, bboxes, rotation, fname):
     pklFile.close()
 
 
-def dump_json(model_identifier, bbox, bboxes, rotation, seed, fname):
+def dump_json(model_identifier, render_fname, bbox, bboxes, rotation, seed, path):
     data = {}
-    data['name'] = model_identifier
+    data['render_fname'] = render_fname + '_render.png'
+    data['depth_fname'] = render_fname + '_depth.exr'
+    data['label'] = model_identifier
     data['rotation'] = rotation
     data['bbox'] = bbox
     data['bboxes'] = bboxes
     data['seed'] = seed
 
-    with open(fname + '.json', 'w') as json_file:
+    with open(path + '.json', 'w') as json_file:
         json.dump(data, json_file)
 
 
@@ -289,7 +291,8 @@ def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, mode
 
                 bbox, bboxes = get_camera_BBox(camera=camera, scene=scene, model=model)
                 # dump_pkl(scene, allVertices, allEdges, bbox, bboxes, (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z), os.path.join(baseDir, fname))
-                dump_json(model_identifier, bbox, bboxes, [angle_x, rad_x, angle_y, rad_y, angle_z, rad_z], seed, os.path.join(baseDir, fname))
+                dump_json(model_identifier=model_identifier, render_fname=fname, bbox=bbox, bboxes=bboxes, 
+                        rotation=[angle_x, rad_x, angle_y, rad_y, angle_z, rad_z], seed=seed, path=os.path.join(baseDir, fname))
 
                 print("Rotation X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). BBox: %s. Vertices: %d. Edges: %d" %
                       (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, bbox, len(allVertices), len(allEdges)))
