@@ -10,7 +10,7 @@ https://drive.google.com/drive/folders/1IlFDUHxvjXrwdo9GdHM764n9HKwnzfml?usp=sha
 
 1. Download a texture
 - go to poliigon.com
-- crete an account
+- create an account
 - download a {free} texture
 
 2. Render
