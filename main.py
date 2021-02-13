@@ -28,16 +28,13 @@ from math import radians
 import numpy as np
 from bpy_extras.object_utils import world_to_camera_view
 from mathutils import Vector
-import pickle
 import json
+import csv
 # HARDCODED STUFF
 
 
 current_script_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(current_script_path)
-
-
-from poliigon_converter import PMC_workflow as Load_Material_Helper
 
 
 def getArgs():
@@ -113,7 +110,7 @@ def get_vertices_and_edges(obj):
 
 def get_BBox(camera, scene, vertices):
     minX, maxX = np.inf, -np.inf
-    minY, maxY = np.inf, -np.inf 
+    minY, maxY = np.inf, -np.inf
 
     for v in vertices:
         co2D = world_to_camera_view(scene, camera, Vector(v))
@@ -128,13 +125,15 @@ def get_BBox(camera, scene, vertices):
 
     return minX, maxX, minY, maxY
 
+
 def get_camera_BBox(camera, scene, model):
     _, allVertices, _, mesh_data = model
     BBoxes = []
 
     for mesh in mesh_data:
         vertices, _ = mesh_data[mesh]
-        BBoxes = BBoxes + [get_BBox(camera=camera, scene=scene, vertices=vertices)]
+        BBoxes = BBoxes + \
+            [get_BBox(camera=camera, scene=scene, vertices=vertices)]
 
     return get_BBox(camera=camera, scene=scene, vertices=allVertices), BBoxes
 
@@ -149,8 +148,34 @@ def randomize_vertices(obj, seed):
     bpy.context.view_layer.objects.active = obj
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.transform.vertex_random(offset=0.0025, seed=seed, uniform=1, normal=0)
+    bpy.ops.transform.vertex_random(
+        offset=0.0025, seed=seed, uniform=1, normal=0)
     bpy.ops.object.mode_set(mode='OBJECT')
+
+
+def dump_json(model_identifier, bbox, bboxes, rotation, seed, path):
+    data = {}
+    data['label'] = model_identifier
+    data['rotation'] = rotation
+    data['bbox'] = bbox
+    data['bboxes'] = bboxes
+    data['seed'] = seed
+
+    with open(path + '.json', 'w') as json_file:
+        json.dump(data, json_file)
+
+
+def dump_csv(path, json_fname):
+    with open(path, 'a', newline='') as fd:
+        writer = csv.writer(fd)
+        writer.writerow([json_fname])
+
+
+def replace_materials(obj, materials):
+    i = 0
+    while i < len(obj.data.materials) and i < len(materials):
+        obj.data.materials[i] = materials[i]
+        i = i + 1
 
 
 def setup_output(scene, fp):
@@ -180,7 +205,8 @@ def setup_output(scene, fp):
     depth_file_output.label = 'Depth Output'
     depth_file_output.base_path = fp
     depth_file_output.format.file_format = 'OPEN_EXR'
-    links.new(render_layers.outputs['Depth'], depth_file_output.inputs['Image'])
+    links.new(render_layers.outputs['Depth'],
+              depth_file_output.inputs['Image'])
 
     # Optical Flow setup
     # Link the movement vector to the image output, movement will be encoded in the rgba
@@ -188,7 +214,8 @@ def setup_output(scene, fp):
     flow_file_output.label = 'Optical Flow Output'
     flow_file_output.base_path = fp
     flow_file_output.format.file_format = 'OPEN_EXR'
-    links.new(render_layers.outputs['Vector'], flow_file_output.inputs['Image'])
+    links.new(render_layers.outputs['Vector'],
+              flow_file_output.inputs['Image'])
 
     scale_normal = tree.nodes.new(type="CompositorNodeMixRGB")
     scale_normal.blend_type = 'MULTIPLY'
@@ -213,93 +240,6 @@ def setup_output(scene, fp):
     links.new(render_layers.outputs['DiffCol'], albedo_file_output.inputs[0])
 
     return {"depth": depth_file_output, "flow": flow_file_output, "normal": normal_file_output, "albedo": albedo_file_output}
-
-
-def dump_pkl(scene, allVertices, allEdges, bbox, bboxes, rotation, fname):
-    dg = bpy.context.evaluated_depsgraph_get()
-
-    modelview_matrix = scene.objects['Camera'].matrix_world
-    projection_matrix = scene.objects['Camera'].calc_matrix_camera(
-        dg,
-        x=scene.render.resolution_x,
-        y=scene.render.resolution_y,
-        scale_x=scene.render.pixel_aspect_x,
-        scale_y=scene.render.pixel_aspect_y,
-    )
-
-    inv_modelview_matrix = modelview_matrix.copy()
-    inv_modelview_matrix.invert()
-    inv_projection_matrix = projection_matrix.copy()
-    inv_projection_matrix.invert()
-
-    pklFile = open(fname + '.pkl', "wb")
-
-    transformedVertices = np.zeros(allVertices.shape)
-
-    idx = 0
-    for vertex in allVertices:
-        vertex = projection_matrix @ inv_modelview_matrix @ Vector(
-            (vertex[0], vertex[1], vertex[2], 1))
-        vertex /= vertex.w
-        transformedVertices[idx, :] = vertex[:-1]
-        idx += 1
-
-    pickle.dump(rotation, pklFile)
-    pickle.dump(bbox, pklFile)
-    pickle.dump(bboxes, pklFile)
-    pickle.dump(transformedVertices, pklFile)
-    pickle.dump(allEdges.astype(np.int), pklFile)
-    pklFile.close()
-
-
-def dump_json(model_identifier, bbox, bboxes, rotation, seed, path):
-    data = {}
-    data['label'] = model_identifier
-    data['rotation'] = rotation
-    data['bbox'] = bbox
-    data['bboxes'] = bboxes
-    data['seed'] = seed
-
-    with open(path + '.json', 'w') as json_file:
-        json.dump(data, json_file)
-
-
-def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, model, seed):
-    model_identifier, allVertices, allEdges, _ = model
-    views_x, views_y, views_z = numViews
-    stepsize_x, stepsize_y, stepsize_z = -170 // views_x, 360 // views_y, 360 // views_z
-
-    print("Rendering %s" % (model_identifier))
-    index = 0
-    for angle_x in range(85, -85, stepsize_x):
-        rad_x = radians(angle_x)
-        cameraRig.rotation_euler[0] = rad_x
-        for angle_y in range(0, 360, stepsize_y):
-            rad_y = radians(angle_y)
-            cameraRig.rotation_euler[1] = rad_y
-            for angle_z in range(0, 360, stepsize_z):
-                rad_z = radians(angle_z)
-                cameraRig.rotation_euler[2] = rad_z
-
-                fname = model_identifier + "_%04d" % (index)
-                index = index + 1
-                scene.render.filepath = os.path.join(baseDir, fname + "_render")
-                for output_node in output_nodes:
-                    output_nodes[output_node].file_slots[0].path = fname + "_" + output_node
-
-                bbox, bboxes = get_camera_BBox(camera=camera, scene=scene, model=model)
-                # dump_pkl(scene, allVertices, allEdges, bbox, bboxes, (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z), os.path.join(baseDir, fname))
-                dump_json(model_identifier=model_identifier, bbox=bbox, bboxes=bboxes, rotation=[angle_x, rad_x, angle_y, rad_y, angle_z, rad_z], seed=seed, path=os.path.join(baseDir, fname))
-
-                print("Rotation X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). BBox: %s. Vertices: %d. Edges: %d" %
-                      (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, bbox, len(allVertices), len(allEdges)))
-
-                old = blockPrint()
-                bpy.ops.render.render(write_still=True)
-                enablePrint(old)
-
-                for output_node in output_nodes:
-                    remove_frame_number(os.path.join(output_nodes[output_node].base_path, output_nodes[output_node].file_slots[0].path))
 
 
 def setup_lights():
@@ -348,6 +288,7 @@ def create_camera_rig():
 
 
 def generate_materials(material_paths):
+    from poliigon_converter import PMC_workflow as Load_Material_Helper
     lmh = Load_Material_Helper()
     materials = []
     print("Generating materials")
@@ -358,13 +299,6 @@ def generate_materials(material_paths):
         print(material)
         materials.append(material)
     return materials
-
-
-def replace_materials(obj, materials):
-    i = 0
-    while i < len(obj.data.materials) and i < len(materials):
-        obj.data.materials[i] = materials[i]
-        i = i + 1
 
 
 def setup_objects(materials, seed, ignore_items):
@@ -390,10 +324,59 @@ def setup_objects(materials, seed, ignore_items):
     return all_vertices, all_edges, mesh_data
 
 
+def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, model, seed):
+    model_identifier, allVertices, allEdges, _ = model
+    views_x, views_y, views_z = numViews
+    stepsize_x, stepsize_y, stepsize_z = - \
+        170 // views_x, 360 // views_y, 360 // views_z
+
+    train_csv = os.path.join(baseDir, "train.csv")
+    test_csv = os.path.join(baseDir, "test.csv")
+
+    no_files = views_x * views_y * views_z
+    no_tests = 20 * no_files // 100
+
+    print("Rendering %s" % (model_identifier))
+    index = 0
+    for angle_x in range(85, -85, stepsize_x):
+        rad_x = radians(angle_x)
+        cameraRig.rotation_euler[0] = rad_x
+        for angle_y in range(0, 360, stepsize_y):
+            rad_y = radians(angle_y)
+            cameraRig.rotation_euler[1] = rad_y
+            for angle_z in range(0, 360, stepsize_z):
+                rad_z = radians(angle_z)
+                cameraRig.rotation_euler[2] = rad_z
+
+                fname = model_identifier + "_%04d" % (index)
+                scene.render.filepath = os.path.join(
+                    baseDir, fname + "_render")
+                for output_node in output_nodes:
+                    output_nodes[output_node].file_slots[0].path = fname + "_" + output_node
+
+                bbox, bboxes = get_camera_BBox(camera, scene, model)
+
+                dump_json(model_identifier, bbox, bboxes, [angle_x, rad_x, angle_y, rad_y, angle_z, rad_z], seed, os.path.join(baseDir, fname))
+                dump_csv(test_csv if index % no_tests == 0 else train_csv, fname + ".json")
+
+                print("Rotation X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). BBox: %s. Vertices: %d. Edges: %d" %
+                      (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, bbox, len(allVertices), len(allEdges)))
+
+                old = blockPrint()
+                bpy.ops.render.render(write_still=True)
+                enablePrint(old)
+
+                for output_node in output_nodes:
+                    remove_frame_number(os.path.join(
+                        output_nodes[output_node].base_path, output_nodes[output_node].file_slots[0].path))
+
+                index = index + 1
+
+
 if __name__ == "__main__":
     ARGS = getArgs()
-    OUTPUT_PATH = os.path.join(current_script_path, ARGS.output_folder)
 
+    OUTPUT_PATH = os.path.join(current_script_path, ARGS.output_folder)
     OUTPUT_NODES = setup_output(bpy.context.scene, fp=OUTPUT_PATH)
 
     old = blockPrint()
@@ -406,12 +389,15 @@ if __name__ == "__main__":
     LIGHTS = setup_lights()
     CAMERA, CAMERA_RIG = create_camera_rig()
 
-    MATERIAL_PATHS = list(map(lambda material_path: os.path.join(current_script_path, material_path), ARGS.material))
+    MATERIAL_PATHS = list(map(lambda material_path: os.path.join(
+        current_script_path, material_path), ARGS.material))
     MATERIALS = generate_materials(MATERIAL_PATHS)
     SEED = ARGS.seed
-    ALL_VERTICES, ALL_EDGES, MESH_DATA = setup_objects(materials=MATERIALS, seed=SEED, ignore_items=[CAMERA, CAMERA_RIG] + LIGHTS)
+    ALL_VERTICES, ALL_EDGES, MESH_DATA = setup_objects(
+        materials=MATERIALS, seed=SEED, ignore_items=[CAMERA, CAMERA_RIG] + LIGHTS)
     OUTPUT_NAME = ARGS.output_name
 
-    render_scene(scene=bpy.context.scene, cameraRig=CAMERA_RIG, camera=CAMERA, baseDir=OUTPUT_PATH, 
-                numViews=(ARGS.views_x, ARGS.views_y, ARGS.views_z), output_nodes=OUTPUT_NODES, 
-                model=(OUTPUT_NAME, ALL_VERTICES, ALL_EDGES, MESH_DATA), seed=SEED)
+    render_scene(scene=bpy.context.scene, cameraRig=CAMERA_RIG, camera=CAMERA, baseDir=OUTPUT_PATH,
+                 numViews=(ARGS.views_x, ARGS.views_y,
+                           ARGS.views_z), output_nodes=OUTPUT_NODES,
+                 model=(OUTPUT_NAME, ALL_VERTICES, ALL_EDGES, MESH_DATA), seed=SEED)
