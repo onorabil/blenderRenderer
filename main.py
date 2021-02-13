@@ -30,6 +30,7 @@ from bpy_extras.object_utils import world_to_camera_view
 from mathutils import Vector
 import json
 import csv
+import time
 # HARDCODED STUFF
 
 
@@ -209,7 +210,6 @@ def setup_output(scene, fp):
               depth_file_output.inputs['Image'])
 
     # Optical Flow setup
-    # Link the movement vector to the image output, movement will be encoded in the rgba
     flow_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
     flow_file_output.label = 'Optical Flow Output'
     flow_file_output.base_path = fp
@@ -217,6 +217,7 @@ def setup_output(scene, fp):
     links.new(render_layers.outputs['Vector'],
               flow_file_output.inputs['Image'])
 
+    # Normal setup
     scale_normal = tree.nodes.new(type="CompositorNodeMixRGB")
     scale_normal.blend_type = 'MULTIPLY'
     scale_normal.inputs[2].default_value = (0.5, 0.5, 0.5, 1)
@@ -233,6 +234,7 @@ def setup_output(scene, fp):
     normal_file_output.format.file_format = 'OPEN_EXR'
     links.new(bias_normal.outputs[0], normal_file_output.inputs[0])
 
+    # Albedo setup
     albedo_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
     albedo_file_output.label = 'Albedo Output'
     albedo_file_output.base_path = fp
@@ -397,7 +399,12 @@ if __name__ == "__main__":
         materials=MATERIALS, seed=SEED, ignore_items=[CAMERA, CAMERA_RIG] + LIGHTS)
     OUTPUT_NAME = ARGS.output_name
 
+    t1 = time.time()
+
     render_scene(scene=bpy.context.scene, cameraRig=CAMERA_RIG, camera=CAMERA, baseDir=OUTPUT_PATH,
                  numViews=(ARGS.views_x, ARGS.views_y,
                            ARGS.views_z), output_nodes=OUTPUT_NODES,
                  model=(OUTPUT_NAME, ALL_VERTICES, ALL_EDGES, MESH_DATA), seed=SEED)
+
+    t2 = time.time()
+    print(t2 - t1)
