@@ -264,14 +264,7 @@ def setup_lights():
     bpy.data.objects['Sun'].rotation_euler = bpy.data.objects['Light'].rotation_euler
     bpy.data.objects['Sun'].rotation_euler[0] += np.pi
 
-    bpy.ops.object.light_add(type='POINT')
-    light = bpy.data.lights['Point']
-    light.cycles.cast_shadow = True
-    light.use_nodes = True
-    light.node_tree.nodes['Emission'].inputs[1].default_value = np.random.randint(2)
-    bpy.data.objects['Point'].location = (np.random.randint(2), np.random.randint(2), np.random.randint(2))
-
-    return [bpy.data.objects['Light'], bpy.data.objects['Sun'] , bpy.data.objects['Point']]
+    return [bpy.data.objects['Light'], bpy.data.objects['Sun']]
 
 
 def create_camera_rig():
