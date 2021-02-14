@@ -257,25 +257,21 @@ def setup_lights():
 
     # Add another light source so stuff facing away from light is not completely dark
     bpy.ops.object.light_add(type='SUN')
-    light2 = bpy.data.lights['Sun']
-    light2.energy = 1
-    light2.cycles.cast_shadow = True
-    light2.use_nodes = True
+    light = bpy.data.lights['Sun']
+    light.energy = 1
+    light.cycles.cast_shadow = True
+    light.use_nodes = True
     bpy.data.objects['Sun'].rotation_euler = bpy.data.objects['Light'].rotation_euler
-    bpy.data.objects['Sun'].rotation_euler = (3.14, 0, 0)
+    bpy.data.objects['Sun'].rotation_euler[0] += np.pi
 
-    light_data = bpy.data.lights.new(name="additional_light", type='POINT')
-    light_data.cycles.cast_shadow = True
-    light_data.use_nodes = True
-    light_data.node_tree.nodes['Emission'].inputs[1].default_value = np.random.randint(
-        2)
-    light_object = bpy.data.objects.new(
-        name="additional_light", object_data=light_data)
-    bpy.context.collection.objects.link(light_object)
-    light_object.location = (np.random.randint(
-        2), np.random.randint(2), np.random.randint(2))
+    bpy.ops.object.light_add(type='POINT')
+    light = bpy.data.lights['Point']
+    light.cycles.cast_shadow = True
+    light.use_nodes = True
+    light.node_tree.nodes['Emission'].inputs[1].default_value = np.random.randint(2)
+    bpy.data.objects['Point'].location = (np.random.randint(2), np.random.randint(2), np.random.randint(2))
 
-    return [bpy.data.objects['Light'], bpy.data.objects['Sun'],  bpy.data.objects['additional_light']]
+    return [bpy.data.objects['Light'], bpy.data.objects['Sun'] , bpy.data.objects['Point']]
 
 
 def create_camera_rig():
