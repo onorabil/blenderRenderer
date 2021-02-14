@@ -45,6 +45,7 @@ def getArgs():
     parser.add_argument('--views_x', type=int, default=30)
     parser.add_argument('--views_y', type=int, default=30)
     parser.add_argument('--views_z', type=int, default=30)
+    parser.add_argument('--resolution', type=int, default=256)
 
     parser.add_argument('--seed', type=int, default=0,
                         help='used to randomize vertices.')
@@ -179,11 +180,12 @@ def replace_materials(obj, materials):
         i = i + 1
 
 
-def setup_output(scene, fp):
+def setup_output(scene, fp, config):
+    (resolution) = config
     scene.render.engine = 'CYCLES'
     # scene.cycles.device = 'GPU'
-    scene.render.resolution_x = 600
-    scene.render.resolution_y = 600
+    scene.render.resolution_x = resolution
+    scene.render.resolution_y = resolution
     scene.render.resolution_percentage = 100
     scene.render.image_settings.file_format = "PNG"
     scene.render.image_settings.color_depth = "16"
@@ -379,7 +381,7 @@ if __name__ == "__main__":
     ARGS = getArgs()
 
     OUTPUT_PATH = os.path.join(current_script_path, ARGS.output_folder)
-    OUTPUT_NODES = setup_output(bpy.context.scene, fp=OUTPUT_PATH)
+    OUTPUT_NODES = setup_output(bpy.context.scene, fp=OUTPUT_PATH, config=(ARGS.resolution))
 
     old = blockPrint()
     bpy.data.objects['Cube'].select_set(state=True)
