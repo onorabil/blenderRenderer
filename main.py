@@ -349,7 +349,7 @@ def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, mode
 
                 bbox, bboxes = get_camera_BBox(camera, scene, model)
 
-                dump_json(model_identifier, bbox, bboxes, [angle_x, rad_x, angle_y, rad_y, angle_z, rad_z], seed, os.path.join(baseDir, fname))
+                dump_json(model_identifier, bbox, bboxes, (angle_x, angle_y, angle_z), seed, os.path.join(baseDir, fname))
                 dump_csv(test_csv if index % no_tests == 0 else train_csv, fname + ".json")
 
                 print("Rotation X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). BBox: %s. Vertices: %d. Edges: %d" %
