@@ -327,9 +327,6 @@ def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, mode
     train_csv = os.path.join(baseDir, "train.csv")
     test_csv = os.path.join(baseDir, "test.csv")
 
-    no_files = views_x * views_y * views_z
-    no_tests = 20 * no_files // 100
-
     print("Rendering %s" % (model_identifier))
     index = 0
     for angle_x in range(85, -85, stepsize_x):
@@ -352,7 +349,7 @@ def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, mode
                 material_names = list(map(lambda material: material.name, materials))
 
                 dump_json(model_identifier, bbox, bboxes, material_names, (angle_x, angle_y, angle_z), seed, os.path.join(baseDir, fname))
-                dump_csv(test_csv if index % no_tests == 0 else train_csv, fname + ".json")
+                dump_csv(test_csv if index % 3 == 0 else train_csv, fname + ".json")
 
                 print("Rotation X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). BBox: %s. Vertices: %d. Edges: %d" %
                       (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, bbox, len(allVertices), len(allEdges)))
