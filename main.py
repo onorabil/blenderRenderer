@@ -129,7 +129,7 @@ def get_BBox(camera, scene, vertices):
 
 
 def get_camera_BBox(camera, scene, model):
-    _, allVertices, _, mesh_data = model
+    _, allVertices, _, mesh_data, _ = model
     BBoxes = []
 
     for mesh in mesh_data:
@@ -155,12 +155,13 @@ def randomize_vertices(obj, seed):
     bpy.ops.object.mode_set(mode='OBJECT')
 
 
-def dump_json(model_identifier, bbox, bboxes, rotation, seed, path):
+def dump_json(model_identifier, bbox, bboxes, materials, rotation, seed, path):
     data = {}
     data['label'] = model_identifier
     data['rotation'] = rotation
     data['bbox'] = bbox
     data['bboxes'] = bboxes
+    data['materials'] = materials
     data['seed'] = seed
 
     with open(path + '.json', 'w') as json_file:
@@ -318,7 +319,7 @@ def setup_objects(materials, seed, ignore_items):
 
 
 def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, model, seed):
-    model_identifier, allVertices, allEdges, _ = model
+    model_identifier, allVertices, allEdges, _, materials = model
     views_x, views_y, views_z = numViews
     stepsize_x, stepsize_y, stepsize_z = - \
         170 // views_x, 360 // views_y, 360 // views_z
@@ -348,8 +349,9 @@ def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, mode
                     output_nodes[output_node].file_slots[0].path = fname + "_" + output_node
 
                 bbox, bboxes = get_camera_BBox(camera, scene, model)
+                material_names = list(map(lambda material: material.name, materials))
 
-                dump_json(model_identifier, bbox, bboxes, (angle_x, angle_y, angle_z), seed, os.path.join(baseDir, fname))
+                dump_json(model_identifier, bbox, bboxes, material_names, (angle_x, angle_y, angle_z), seed, os.path.join(baseDir, fname))
                 dump_csv(test_csv if index % no_tests == 0 else train_csv, fname + ".json")
 
                 print("Rotation X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). BBox: %s. Vertices: %d. Edges: %d" %
@@ -395,7 +397,7 @@ if __name__ == "__main__":
     render_scene(scene=bpy.context.scene, cameraRig=CAMERA_RIG, camera=CAMERA, baseDir=OUTPUT_PATH,
                  numViews=(ARGS.views_x, ARGS.views_y,
                            ARGS.views_z), output_nodes=OUTPUT_NODES,
-                 model=(OUTPUT_NAME, ALL_VERTICES, ALL_EDGES, MESH_DATA), seed=SEED)
+                 model=(OUTPUT_NAME, ALL_VERTICES, ALL_EDGES, MESH_DATA, MATERIALS), seed=SEED)
 
     t2 = time.time()
     print(t2 - t1)
