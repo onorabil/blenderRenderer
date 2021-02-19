@@ -343,20 +343,21 @@ def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, mode
                 scene.render.filepath = os.path.join(
                     baseDir, fname + "_render")
                 for output_node in output_nodes:
-                    output_nodes[output_node].file_slots[0].path = fname + "_" + output_node
-
-                bbox, bboxes = get_camera_BBox(camera, scene, model)
-                material_names = list(map(lambda material: material.name, materials))
-
-                dump_json(model_identifier, bbox, bboxes, material_names, (angle_x, angle_y, angle_z), seed, os.path.join(baseDir, fname))
-                dump_csv(test_csv if index % 3 == 0 else train_csv, fname + ".json")
-
-                print("Rotation X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). BBox: %s. Vertices: %d. Edges: %d" %
-                      (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, bbox, len(allVertices), len(allEdges)))
+                    output_nodes[output_node].file_slots[0].path = fname + \
+                        "_" + output_node
 
                 old = blockPrint()
                 bpy.ops.render.render(write_still=True)
                 enablePrint(old)
+
+                bbox, bboxes = get_camera_BBox(camera, scene, model)
+                material_names = list(
+                    map(lambda material: material.name, materials))
+
+                dump_json(model_identifier, bbox, bboxes, material_names,
+                          (angle_x, angle_y, angle_z), seed, os.path.join(baseDir, fname))
+                dump_csv(test_csv if index %
+                         3 == 0 else train_csv, fname + ".json")
 
                 for output_node in output_nodes:
                     remove_frame_number(os.path.join(
@@ -364,12 +365,16 @@ def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, mode
 
                 index = index + 1
 
+                print("Rotation X:(%d, %2.2f), Y:(%d, %2.2f), Z:(%d, %2.2f). BBox: %s. Vertices: %d. Edges: %d" %
+                      (angle_x, rad_x, angle_y, rad_y, angle_z, rad_z, bbox, len(allVertices), len(allEdges)))
+
 
 if __name__ == "__main__":
     ARGS = getArgs()
 
     OUTPUT_PATH = os.path.join(current_script_path, ARGS.output_folder)
-    OUTPUT_NODES = setup_output(bpy.context.scene, fp=OUTPUT_PATH, config=(ARGS.resolution))
+    OUTPUT_NODES = setup_output(
+        bpy.context.scene, fp=OUTPUT_PATH, config=(ARGS.resolution))
 
     old = blockPrint()
     bpy.data.objects['Cube'].select_set(state=True)
