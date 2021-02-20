@@ -326,6 +326,10 @@ def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, mode
 
     train_csv = os.path.join(baseDir, "train.csv")
     test_csv = os.path.join(baseDir, "test.csv")
+    class_csv = os.path.join(baseDir, "class.csv")
+    with open(class_csv, 'a', newline='') as fd:
+        writer = csv.writer(fd)
+        writer.writerow([model_identifier])
 
     print("Rendering %s" % (model_identifier))
     index = 0
