@@ -1,8 +1,5 @@
 # BlenderRenderer
-Synthetic dataset creator using Blender Python API and poliigon material converter. <br>
-<br>
-Contains parts from the material converter addon, available here:<br>
-https://help.poliigon.com/en/articles/2540839-poliigon-material-converter-addon-for-blender<br>
+Synthetic dataset creator using Blender Python API and [poliigon material converter](https://help.poliigon.com/en/articles/2540839-poliigon-material-converter-addon-for-blender). <br>
 
 ## Requirements
 Python 3.8 or later with all [requirements.txt](https://github.com/onorabil/blenderRenderer/blob/main/requirements.txt) dependencies installed. To install run:
