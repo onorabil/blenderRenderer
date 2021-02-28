@@ -17,8 +17,8 @@ https://drive.google.com/drive/folders/1IlFDUHxvjXrwdo9GdHM764n9HKwnzfml?usp=sha
 $ blender -b --python main.py -- [-h] [--views_x VIEWS_X] [--views_y VIEWS_Y]
                                  [--views_z VIEWS_Z] [--resolution RESOLUTION] [--seed SEED
                                  [--output_folder OUTPUT_FOLDER] [--color_depth COLOR_DEPTH]
-                                 [--material MATERIAL [MATERIAL ...]]
-                                 [--output_name OUTPUT_NAME]
+                                 [--material MATERIAL [MATERIAL ...]] 
+                                 [--output_name OUTPUT_NAME] [--class_name CLASS_NAME]
                                  obj
 ```
 

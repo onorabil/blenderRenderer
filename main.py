@@ -60,6 +60,8 @@ def getArgs():
                         help='Material name. Check README.md')
     parser.add_argument('--output_name', type=str, default='out',
                         help='name of the output file')
+    parser.add_argument('--class_name', type=str,
+                        help="the label")
     argv = sys.argv[sys.argv.index("--") + 1:]
     args = parser.parse_args(argv)
     return args
@@ -129,7 +131,7 @@ def get_BBox(camera, scene, vertices):
 
 
 def get_camera_BBox(camera, scene, model):
-    _, allVertices, _, mesh_data, _ = model
+    _, _, allVertices, _, mesh_data, _ = model
     BBoxes = []
 
     for mesh in mesh_data:
@@ -155,9 +157,9 @@ def randomize_vertices(obj, seed):
     bpy.ops.object.mode_set(mode='OBJECT')
 
 
-def dump_json(model_identifier, bbox, bboxes, materials, rotation, seed, path):
+def dump_json(class_name, bbox, bboxes, materials, rotation, seed, path):
     data = {}
-    data['label'] = model_identifier
+    data['label'] = class_name
     data['rotation'] = rotation
     data['bbox'] = bbox
     data['bboxes'] = bboxes
@@ -319,7 +321,7 @@ def setup_objects(materials, seed, ignore_items):
 
 
 def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, model, seed):
-    model_identifier, allVertices, allEdges, _, materials = model
+    class_name, model_identifier, allVertices, allEdges, _, materials = model
     views_x, views_y, views_z = numViews
     stepsize_x, stepsize_y, stepsize_z = - \
         170 // views_x, 360 // views_y, 360 // views_z
@@ -358,7 +360,7 @@ def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, mode
                 material_names = list(
                     map(lambda material: material.name, materials))
 
-                dump_json(model_identifier, bbox, bboxes, material_names,
+                dump_json(class_name, bbox, bboxes, material_names,
                           (angle_x, angle_y, angle_z), seed, os.path.join(baseDir, fname))
                 dump_csv(test_csv if index %
                          3 == 0 else train_csv, fname + ".json")
@@ -397,13 +399,14 @@ if __name__ == "__main__":
     ALL_VERTICES, ALL_EDGES, MESH_DATA = setup_objects(
         materials=MATERIALS, seed=SEED, ignore_items=[CAMERA, CAMERA_RIG] + LIGHTS)
     OUTPUT_NAME = ARGS.output_name
+    CLASS_NAME = ARGS.class_name
 
     t1 = time.time()
 
     render_scene(scene=bpy.context.scene, cameraRig=CAMERA_RIG, camera=CAMERA, baseDir=OUTPUT_PATH,
                  numViews=(ARGS.views_x, ARGS.views_y,
                            ARGS.views_z), output_nodes=OUTPUT_NODES,
-                 model=(OUTPUT_NAME, ALL_VERTICES, ALL_EDGES, MESH_DATA, MATERIALS), seed=SEED)
+                 model=(CLASS_NAME, OUTPUT_NAME, ALL_VERTICES, ALL_EDGES, MESH_DATA, MATERIALS), seed=SEED)
 
     t2 = time.time()
     print(t2 - t1)
