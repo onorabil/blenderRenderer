@@ -16,12 +16,14 @@ https://drive.google.com/drive/folders/1IlFDUHxvjXrwdo9GdHM764n9HKwnzfml?usp=sha
 
 ### USAGE
 
-blender -b --python main.py -- [-h] [--views_x VIEWS_X] [--views_y VIEWS_Y]<br>
-                               [--views_z VIEWS_Z] [--resolution RESOLUTION] [--seed SEED]<br>
-                               [--output_folder OUTPUT_FOLDER] [--color_depth COLOR_DEPTH]<br>
-                               [--material MATERIAL [MATERIAL ...]]<br>
-                               [--output_name OUTPUT_NAME]<br>
-                               obj<br>
+```bash
+$ blender -b --python main.py -- [-h] [--views_x VIEWS_X] [--views_y VIEWS_Y]
+                                 [--views_z VIEWS_Z] [--resolution RESOLUTION] [--seed SEED
+                                 [--output_folder OUTPUT_FOLDER] [--color_depth COLOR_DEPTH]
+                                 [--material MATERIAL [MATERIAL ...]]
+                                 [--output_name OUTPUT_NAME]
+                                 obj
+```
 
 Renders given object file by rotating a camera around it.<br>
 <br>
