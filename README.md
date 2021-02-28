@@ -1,55 +1,47 @@
-Synthetic dataset creator using Blender, an obj model and texture from poliigon.com
+# BlenderRenderer
+Synthetic dataset creator using Blender Python API and poliigon material converter. <br>
+<br>
+Contains parts from the material converter addon, available here:<br>
+https://help.poliigon.com/en/articles/2540839-poliigon-material-converter-addon-for-blender<br>
 
-Contains parts from the material converter addon, available here:
-https://help.poliigon.com/en/articles/2540839-poliigon-material-converter-addon-for-blender
-
-### Models and Materials
-https://drive.google.com/drive/folders/1IlFDUHxvjXrwdo9GdHM764n9HKwnzfml?usp=sharing
-
-### How to run
-
-1. Download a texture
-- go to poliigon.com
-- crete an account
-- download a {free} texture
-
-2. Render
-
-```sh
-blender -b --python main.py -- models/goat_willow_leaf/model_normalized.obj --views_x=3 --views_y=3 --views_z=3 --material materials/Leaf_4K --output_folder output --seed 1
+## Requirements
+Python 3.8 or later with all [requirements.txt](https://github.com/onorabil/blenderRenderer/blob/main/requirements.txt) dependencies installed. To install run:
+```bash
+$ pip install -r requirements.txt
 ```
 
-output file names will be : model_render_seed_rotation_(layer)
-
-3. Preview Data using jupyter notebook
+### Resources
+Objects, Materials + example dataset and the commands used to create it<br>
+https://drive.google.com/drive/folders/1IlFDUHxvjXrwdo9GdHM764n9HKwnzfml?usp=sharing
 
 ### USAGE
 
-usage: blender [-h] [--views_x VIEWS_X] [--views_y VIEWS_Y]
-               [--views_z VIEWS_Z] [--seed SEED]
-               [--output_folder OUTPUT_FOLDER] [--color_depth COLOR_DEPTH]
-               [--material MATERIAL [MATERIAL ...]]
-               [--output_name OUTPUT_NAME]
-               obj
+blender -b --python main.py -- [-h] [--views_x VIEWS_X] [--views_y VIEWS_Y]<br>
+                               [--views_z VIEWS_Z] [--resolution RESOLUTION] [--seed SEED]<br>
+                               [--output_folder OUTPUT_FOLDER] [--color_depth COLOR_DEPTH]<br>
+                               [--material MATERIAL [MATERIAL ...]]<br>
+                               [--output_name OUTPUT_NAME]<br>
+                               obj<br>
 
-Renders given obj file by rotation a camera around it.
-
-positional arguments:
-  obj                   Path to the obj file to be rendered.
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --views_x VIEWS_X
-  --views_y VIEWS_Y
-  --views_z VIEWS_Z
-  --seed SEED           used to randomize vertices.
-  --output_folder OUTPUT_FOLDER
-                        The path the output will be dumped to.
-  --color_depth COLOR_DEPTH
+Renders given object file by rotating a camera around it.<br>
+<br>
+positional arguments:<br>
+  obj                   Path to the obj file to be rendered.<br>
+<br>
+optional arguments:<br>
+  -h, --help            show this help message and exit<br>
+  --views_x VIEWS_X<br>
+  --views_y VIEWS_Y<br>
+  --views_z VIEWS_Z<br>
+  --resolution RESOLUTION<br>
+  --seed SEED           used to randomize vertices.<br>
+  --output_folder OUTPUT_FOLDER<br>
+                        The path the output will be dumped to.<br>
+  --color_depth COLOR_DEPTH<br>
                         Number of bit per channel used for output. Either 8 or
-                        16.
-  --material MATERIAL [MATERIAL ...]
-                        Material name. Check README.md
-  --output_name OUTPUT_NAME
-                        name of the output file
+                        16.<br>
+  --material MATERIAL [MATERIAL ...]<br>
+                        Material file path.<br>
+  --output_name OUTPUT_NAME<br>
+                        name of the output file<br>
 
