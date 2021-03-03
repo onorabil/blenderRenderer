@@ -82,9 +82,13 @@ def enablePrint(old):
     os.close(old)
 
 
-def remove_frame_number(fname):
-    outRenderFileNamePadded = fname+"0001.exr"
-    outRenderFileName = fname+".exr"
+def get_ext(type):
+    return ".png" if type == "PNG" else ".exr"
+
+
+def remove_frame_number(fname, ext):
+    outRenderFileNamePadded = fname+"0001" + ext
+    outRenderFileName = fname + ext
     if not os.path.exists(outRenderFileNamePadded):
         return
     if os.path.exists(outRenderFileName):
@@ -246,7 +250,14 @@ def setup_output(scene, fp, config):
     albedo_file_output.format.file_format = 'OPEN_EXR'
     links.new(render_layers.outputs['DiffCol'], albedo_file_output.inputs[0])
 
-    return {"depth": depth_file_output, "flow": flow_file_output, "normal": normal_file_output, "albedo": albedo_file_output}
+    # Render setup
+    render_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
+    render_file_output.label = 'Render Output'
+    render_file_output.base_path = fp
+    render_file_output.format.file_format = 'PNG'
+    links.new(render_layers.outputs['Image'], render_file_output.inputs[0])
+
+    return {"depth": depth_file_output, "flow": flow_file_output, "normal": normal_file_output, "albedo": albedo_file_output, "render": render_file_output}
 
 
 def setup_lights():
@@ -346,8 +357,6 @@ def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, mode
                 cameraRig.rotation_euler[2] = rad_z
 
                 fname = model_identifier + "_%04d" % (index)
-                scene.render.filepath = os.path.join(
-                    baseDir, fname + "_render")
                 for output_node in output_nodes:
                     output_nodes[output_node].file_slots[0].path = fname + \
                         "_" + output_node
@@ -366,8 +375,8 @@ def render_scene(scene, cameraRig, camera, baseDir, numViews, output_nodes, mode
                          3 == 0 else train_csv, fname + ".json")
 
                 for output_node in output_nodes:
-                    remove_frame_number(os.path.join(
-                        output_nodes[output_node].base_path, output_nodes[output_node].file_slots[0].path))
+                    remove_frame_number(os.path.join(output_nodes[output_node].base_path, output_nodes[output_node].file_slots[0].path), get_ext(
+                        output_nodes[output_node].format.file_format))
 
                 index = index + 1
 
