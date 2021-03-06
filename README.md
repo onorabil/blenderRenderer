@@ -13,6 +13,8 @@ https://drive.google.com/drive/folders/1IlFDUHxvjXrwdo9GdHM764n9HKwnzfml?usp=sha
 
 ### USAGE
 
+Renders given object file by rotating a camera around it.
+
 ```bash
 $ blender -b --python main.py -- [-h] [--views_x VIEWS_X] [--views_y VIEWS_Y]
                                  [--views_z VIEWS_Z] [--resolution RESOLUTION] [--seed SEED
@@ -22,25 +24,9 @@ $ blender -b --python main.py -- [-h] [--views_x VIEWS_X] [--views_y VIEWS_Y]
                                  obj
 ```
 
-Renders given object file by rotating a camera around it.<br>
-<br>
-positional arguments:<br>
-  obj                   Path to the obj file to be rendered.<br>
-<br>
-optional arguments:<br>
-  -h, --help            show this help message and exit<br>
-  --views_x VIEWS_X<br>
-  --views_y VIEWS_Y<br>
-  --views_z VIEWS_Z<br>
-  --resolution RESOLUTION<br>
-  --seed SEED           used to randomize vertices.<br>
-  --output_folder OUTPUT_FOLDER<br>
-                        The path the output will be dumped to.<br>
-  --color_depth COLOR_DEPTH<br>
-                        Number of bit per channel used for output. Either 8 or
-                        16.<br>
-  --material MATERIAL [MATERIAL ...]<br>
-                        Material file path.<br>
-  --output_name OUTPUT_NAME<br>
-                        name of the output file<br>
+To generate the required folder structure run this command<br>
+It will generate the bdataset dir in the parent directory using the output
 
+```bash
+$ python dataset.py
+```
