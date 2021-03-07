@@ -1,5 +1,6 @@
 import json
 import shutil
+import numpy as np
 from os import getcwd
 from os.path import join
 from pathlib import Path
@@ -34,7 +35,10 @@ def create_annotation(classes, json_path, label_path, pose_path):
         label_file.write(" ".join(str(item) for item in [classes.index(data['label']), *convert(data['bbox'])]))
         
     with open(pose_path, 'w') as pose_file:
-        pose_file.write(" ".join(str(item) for item in data['rotation']))
+        rotation = data['rotation']
+        rotation = list(map(lambda a: a if a <= 180 else a - 360, rotation))
+        rotation = list(map(lambda a: np.deg2rad(a), rotation))
+        pose_file.write(" ".join(str(a) for a in rotation))
 
 classes = open(join(data_path, class_fname)).read().strip().split()
 train_json = open(join(data_path, train_fname)).read().strip().split()
