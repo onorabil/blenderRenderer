@@ -1,6 +1,5 @@
 import json
 import shutil
-import numpy as np
 from os import getcwd
 from os.path import join
 from pathlib import Path
@@ -14,6 +13,7 @@ wd = Path(getcwd())
 root = wd.parent
 data_path = Path(join(wd, 'output'))
 
+
 def convert(box):
     min_x, max_x, min_y, max_y = box
     min_x = min(max(0, min_x), 1)
@@ -26,19 +26,15 @@ def convert(box):
     h = max_y - min_y
     return x, y, w, h
 
-def create_annotation(classes, json_path, label_path, pose_path):
+
+def create_annotation(classes, json_path, label_path):
     with open(json_path, 'r') as json_file:
         data = json.load(json_file)
     assert data is not None
 
     with open(label_path, 'w') as label_file:
         label_file.write(" ".join(str(item) for item in [classes.index(data['label']), *convert(data['bbox'])]))
-        
-    with open(pose_path, 'w') as pose_file:
-        rotation = data['rotation']
-        rotation = list(map(lambda a: a if a <= 180 else a - 360, rotation))
-        rotation = list(map(lambda a: np.deg2rad(a), rotation))
-        pose_file.write(" ".join(str(a) for a in rotation))
+
 
 classes = open(join(data_path, class_fname)).read().strip().split()
 train_json = open(join(data_path, train_fname)).read().strip().split()
@@ -54,8 +50,6 @@ Path(join(root, DATASET, 'normals', 'train')).mkdir(parents=True, exist_ok=True)
 Path(join(root, DATASET, 'normals', 'test')).mkdir(parents=True, exist_ok=True)
 Path(join(root, DATASET, 'labels', 'train')).mkdir(parents=True, exist_ok=True)
 Path(join(root, DATASET, 'labels', 'test')).mkdir(parents=True, exist_ok=True)
-Path(join(root, DATASET, 'poses', 'train')).mkdir(parents=True, exist_ok=True)
-Path(join(root, DATASET, 'poses', 'test')).mkdir(parents=True, exist_ok=True)
 
 for json_fname in train_json:
     fname = json_fname.split('.')[0]
@@ -72,7 +66,7 @@ for json_fname in train_json:
     shutil.copy(depth_path, join(root, DATASET, 'depth', 'train', fname + f'.exr'))
     shutil.copy(seg_path, join(root, DATASET, 'seg', 'train', fname + f'.exr'))
     shutil.copy(normal_path, join(root, DATASET, 'normals', 'train', fname + f'.exr'))
-    create_annotation(classes, json_path, join(root, DATASET, 'labels', 'train', fname + f'.txt'), join(root, DATASET, 'poses', 'train', fname + f'.txt'))
+    create_annotation(classes, json_path, join(root, DATASET, 'labels', 'train', fname + f'.txt'))
     
 for json_fname in test_json:
     fname = json_fname.split('.')[0]
@@ -89,4 +83,4 @@ for json_fname in test_json:
     shutil.copy(depth_path, join(root, DATASET, 'depth', 'test', fname + f'.exr'))
     shutil.copy(seg_path, join(root, DATASET, 'seg', 'test', fname + f'.exr'))
     shutil.copy(normal_path, join(root, DATASET, 'normals', 'test', fname + f'.exr'))
-    create_annotation(classes, json_path, join(root, DATASET, 'labels', 'test', fname + f'.txt'), join(root, DATASET, 'poses', 'test', fname + f'.txt'))
+    create_annotation(classes, json_path, join(root, DATASET, 'labels', 'test', fname + f'.txt'))
