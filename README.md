@@ -8,20 +8,15 @@ $ pip install -r requirements.txt
 ```
 
 ### Resources
-Objects, Materials + example dataset and the commands used to create it<br>
+Objects, Materials + examples<br>
 https://drive.google.com/drive/folders/1IlFDUHxvjXrwdo9GdHM764n9HKwnzfml?usp=sharing
 
 ### USAGE
 
-Renders given object file by rotating a camera around it.
+Renders a set of scenes built from a json file.
 
 ```bash
-$ blender -b --python main.py -- [-h] [--views_x VIEWS_X] [--views_y VIEWS_Y]
-                                 [--views_z VIEWS_Z] [--resolution RESOLUTION] [--seed SEED
-                                 [--output_folder OUTPUT_FOLDER] [--color_depth COLOR_DEPTH]
-                                 [--material MATERIAL [MATERIAL ...]] 
-                                 [--output_name OUTPUT_NAME] [--class_name CLASS_NAME]
-                                 obj
+$ blender -b --python render.py -- json
 ```
 
 To generate the required folder structure run this command<br>
@@ -30,3 +25,35 @@ It will generate the bdataset dir in the parent directory using the output
 ```bash
 $ python dataset.py
 ```
+
+### JSON STRUCT
+
+- `path`: the output directory path
+- `resolution`: the resolution of the image, `witdh`=`height`=`resolution`
+- `classes`: list containing the classes of the objects
+- `batches`: a list containing scene information
+    - `imports`: a list containing imports (objects, materials) tuples
+        - `object`:
+            - `path`: path to the object file
+            - `name`: the name of the object, used in blender as an id
+            - `class`: object class
+            - `position`: position of the object
+            - `rotation`: rotation of the object
+            - `scale`: scale of the object
+            - `seed`: used to randomize vertices, 0 if not used
+        - `materials`: a list of materials to assign to the object
+            - `path`: path to the material file
+            - `name`: name of the material
+    - `scene`: contains scene configurations
+        - `camera`: 
+            - `position`: initial position of the camera
+            - `rotation`: initial rotation of the camera
+        - `lights`: list of light configurations
+            - `type`: `SUN`, `POINT`, other Blender light types.
+            - `position`: position of the light
+            - `rotation`: rotation of the light
+            - `energy`: intensity of the light
+        - `render`: render configuration
+            - `x`: angles on the x axis [start, stop(not included), step]
+            - `y`: angles on the y axis [start, stop(not included), step]
+            - `z`: angles on the z axis [start, stop(not included), step]
