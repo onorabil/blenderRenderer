@@ -21,7 +21,7 @@ STEP = 3
 
 index = 0
 for i, image in enumerate(images):
-    shutil.copy(image, join(root, DATASET, 'images', 'test' if i % STEP == 0 else 'train'))
+    shutil.copy(image, join(root, DATASET, 'images', 'test' if (i // 4) % STEP == 0 else 'train'))
     
 for i, label in enumerate(labels):
     shutil.copy(label, join(root, DATASET, 'labels', 'test' if i % STEP == 0 else 'train'))
