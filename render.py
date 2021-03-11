@@ -1532,7 +1532,7 @@ def setup_output(resolution, base_path="out"):
     depth_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
     depth_file_output.label = 'depth'
     depth_file_output.base_path = base_path
-    depth_file_output.format.file_format = 'PNG'
+    depth_file_output.format.file_format = 'OPEN_EXR'
     links.new(render_layers.outputs['Depth'],
               depth_file_output.inputs['Image'])
 
@@ -1550,14 +1550,14 @@ def setup_output(resolution, base_path="out"):
     normal_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
     normal_file_output.label = 'normal'
     normal_file_output.base_path = base_path
-    normal_file_output.format.file_format = 'PNG'
+    normal_file_output.format.file_format = 'OPEN_EXR'
     links.new(bias_normal.outputs[0], normal_file_output.inputs[0])
 
     # Albedo setup
     albedo_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
     albedo_file_output.label = 'albedo'
     albedo_file_output.base_path = base_path
-    albedo_file_output.format.file_format = 'PNG'
+    albedo_file_output.format.file_format = 'OPEN_EXR'
     links.new(render_layers.outputs['DiffCol'], albedo_file_output.inputs[0])
 
     # Render setup

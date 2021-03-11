@@ -14,7 +14,7 @@ Path(join(root, DATASET, 'images', 'test')).mkdir(parents=True, exist_ok=True)
 Path(join(root, DATASET, 'labels', 'train')).mkdir(parents=True, exist_ok=True)
 Path(join(root, DATASET, 'labels', 'test')).mkdir(parents=True, exist_ok=True)
 
-images = glob.glob(str(data_path / '*.png'), recursive=True)
+images = sorted(glob.glob(str(data_path / '*.png'), recursive=True) + glob.glob(str(data_path / '*.exr'), recursive=True))
 labels = glob.glob(str(data_path / '*.txt'), recursive=True)
 
 STEP = 3
