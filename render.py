@@ -1810,9 +1810,6 @@ if __name__ == "__main__":
         t2 = time.time()
         TIME += t2 - t1
         print(t2 - t1)
-
-    with open(os.path.join(OUTPUT_PATH, "classes.txt"), 'w') as f:
-        csv.writer(f).writerow(CLASSES)
     
     print(TIME)
     print(CLASSES)
