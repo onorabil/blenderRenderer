@@ -45,9 +45,58 @@
           }
         ],
         "render": {
-          "x": [85, -86, -17],
+          "x": [85, 84, -17],
           "y": [0, 1, 1],
-          "z": [0, 361, 5]
+          "z": [0, 361, 90]
+        }
+      }
+    },
+    {
+      "imports": [
+        {
+          "object": {
+            "path": "models/object02/model_normalized.obj",
+            "name": "object02",
+            "class": "object02",
+            "position": [0, 0, 0],
+            "rotation": [90, 0, 0],
+            "seed": 0
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            }
+          ]
+        }
+      ],
+      "scene": {
+        "camera": {
+          "position": [0, 1, 0],
+          "rotation": [90, 0, 180]
+        },
+        "lights": [
+          {
+            "type": "SUN",
+            "position": [0, 0, 1],
+            "rotation": [-60, 0, 0],
+            "energy": 2
+          },
+          {
+            "type": "SUN",
+            "position": [0, 0, -1],
+            "rotation": [120, 0, 0],
+            "energy": 1.5
+          }
+        ],
+        "render": {
+          "x": [85, 84, -17],
+          "y": [0, 1, 1],
+          "z": [0, 361, 90]
         }
       }
     }

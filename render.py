@@ -1531,7 +1531,7 @@ def setup_output(resolution, base_path="out"):
     depth_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
     depth_file_output.label = 'depth'
     depth_file_output.base_path = base_path
-    depth_file_output.format.file_format = 'OPEN_EXR'
+    depth_file_output.format.file_format = 'PNG'
     links.new(render_layers.outputs['Depth'],
               depth_file_output.inputs['Image'])
 
@@ -1549,19 +1549,19 @@ def setup_output(resolution, base_path="out"):
     normal_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
     normal_file_output.label = 'normal'
     normal_file_output.base_path = base_path
-    normal_file_output.format.file_format = 'OPEN_EXR'
+    normal_file_output.format.file_format = 'PNG'
     links.new(bias_normal.outputs[0], normal_file_output.inputs[0])
 
     # Albedo setup
     albedo_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
     albedo_file_output.label = 'albedo'
     albedo_file_output.base_path = base_path
-    albedo_file_output.format.file_format = 'OPEN_EXR'
+    albedo_file_output.format.file_format = 'PNG'
     links.new(render_layers.outputs['DiffCol'], albedo_file_output.inputs[0])
 
     # Render setup
     render_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
-    render_file_output.label = 'render'
+    render_file_output.label = 'rgb'
     render_file_output.base_path = base_path
     render_file_output.format.file_format = 'PNG'
     links.new(render_layers.outputs['Image'], render_file_output.inputs[0])
@@ -1711,6 +1711,19 @@ def setup_scene(data: Dict):
     return rig, views, camera, lights, output_nodes
 
 
+def xyxy2xywh(box):
+    min_x, min_y, max_x, max_y = box
+    min_x = min(max(0, min_x), 1)
+    max_x = min(max(0, max_x), 1)
+    min_y = min(max(0, min_y), 1)
+    max_y = min(max(0, max_y), 1)
+    x = (min_x + max_x) / 2.0
+    y = 1 - (min_y + max_y) / 2.0
+    w = max_x - min_x
+    h = max_y - min_y
+    return x, y, w, h
+
+
 def get_bbox(obj_data, camera):
     global CLASSES
     minX, maxX = np.inf, -np.inf
@@ -1730,7 +1743,7 @@ def get_bbox(obj_data, camera):
 
     if obj_data[1] not in CLASSES:
         CLASSES.append(obj_data[1])
-    return CLASSES.index(obj_data[1]), minX, minY, maxX, maxY
+    return (CLASSES.index(obj_data[1]), *xyxy2xywh((minX, minY, maxX, maxY)))
 
 
 def get_bboxes(objs_data, camera):
@@ -1740,7 +1753,7 @@ def get_bboxes(objs_data, camera):
 def render_view(rig, view, output_nodes, fmt=6):
     rig.rotation_euler = view
     for output_node in output_nodes:
-        output_node.file_slots[0].path = ("#" * fmt) + "_" + output_node.label
+        output_node.file_slots[0].path = ("#" * fmt) + output_node.label
     bpy.ops.render.render(write_still=True)
 
 
@@ -1761,7 +1774,7 @@ def render(objs_data, rig, camera, views, output_nodes, fmt=6):
                 render_view(rig, (x, y, z), output_nodes, fmt=fmt)
                 bboxes = get_bboxes(objs_data, camera)
                 bboxes2txt(os.path.join(
-                    OUTPUT_PATH, f'%0{fmt}d_label' % (RENDER_INDEX)), bboxes)
+                    OUTPUT_PATH, f'%0{fmt}d' % (RENDER_INDEX)), bboxes)
 
                 RENDER_INDEX = RENDER_INDEX + 1
 
@@ -1789,12 +1802,17 @@ if __name__ == "__main__":
     OUTPUT_PATH = os.path.abspath(data["path"])
     RESOLUTION = data["resolution"]
     CLASSES = []
+    TIME = 0
 
     for batch in data["batches"]:
         t1 = time.time()
         main(batch)
         t2 = time.time()
+        TIME += t2 - t1
         print(t2 - t1)
 
     with open(os.path.join(OUTPUT_PATH, "classes.txt"), 'w') as f:
-        f.writelines(CLASSES)
+        csv.writer(f).writerow(CLASSES)
+    
+    print(TIME)
+    print(CLASSES)
