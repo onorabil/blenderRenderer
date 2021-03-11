@@ -20,6 +20,7 @@
 # Also produces depth map, albedo map, normal map and optical flow at the same time.
 
 import os
+from pathlib import Path
 import re
 import bpy
 import csv
@@ -1592,6 +1593,7 @@ def import_object(obj: Dict):
     bpy_obj.name = obj["name"]
     bpy_obj.location = obj["position"]
     bpy_obj.rotation_euler = np.deg2rad(obj["rotation"])
+    bpy_obj.scale = obj["scale"]
     randomize_vertices(bpy_obj, obj["seed"])
 
     return bpy_obj, obj["class"]
@@ -1619,7 +1621,10 @@ def assign_materials(obj, mats):
 
 
 def get_vertices_and_edges(obj):
-    vertices = [obj.matrix_world @ v.co for v in obj.data.vertices]
+    R = mathutils.Euler(obj.rotation_euler).to_matrix().to_4x4()
+    T = mathutils.Matrix.Translation(obj.location)
+    S = mathutils.Matrix.Diagonal(obj.scale).to_4x4()
+    vertices = [T @ R @ S @ v.co for v in obj.data.vertices]
     edges = [tuple(i.vertices) for i in obj.data.edges]
 
     return vertices, edges
@@ -1725,7 +1730,6 @@ def xyxy2xywh(box):
 
 
 def get_bbox(obj_data, camera):
-    global CLASSES
     minX, maxX = np.inf, -np.inf
     minY, maxY = np.inf, -np.inf
 
@@ -1741,13 +1745,12 @@ def get_bbox(obj_data, camera):
         if maxY < co2D[1]:
             maxY = co2D[1]
 
-    if obj_data[1] not in CLASSES:
-        CLASSES.append(obj_data[1])
-    return (CLASSES.index(obj_data[1]), *xyxy2xywh((minX, minY, maxX, maxY)))
+    return xyxy2xywh((minX, minY, maxX, maxY))
 
 
-def get_bboxes(objs_data, camera):
-    return [get_bbox(obj_data, camera) for obj_data in objs_data]
+def get_labels(objs_data, camera):
+    global CLASSES
+    return [(CLASSES.index(obj_data[1]), *get_bbox(obj_data, camera)) for obj_data in objs_data]
 
 
 def render_view(rig, view, output_nodes, fmt=6):
@@ -1757,9 +1760,10 @@ def render_view(rig, view, output_nodes, fmt=6):
     bpy.ops.render.render(write_still=True)
 
 
-def bboxes2txt(path, bboxes):
+def labels2txt(path, bboxes):
     with open(path + '.txt', 'w') as f:
-        f.writelines([" ".join([str(a) for a in bbox]) for bbox in bboxes])
+        for item in [" ".join([str(a) for a in bbox]) for bbox in bboxes]:
+            f.write("%s\n" % item)
 
 
 def render(objs_data, rig, camera, views, output_nodes, fmt=6):
@@ -1772,9 +1776,8 @@ def render(objs_data, rig, camera, views, output_nodes, fmt=6):
             for z in views_z:
                 bpy.context.scene.frame_set(RENDER_INDEX)
                 render_view(rig, (x, y, z), output_nodes, fmt=fmt)
-                bboxes = get_bboxes(objs_data, camera)
-                bboxes2txt(os.path.join(
-                    OUTPUT_PATH, f'%0{fmt}d' % (RENDER_INDEX)), bboxes)
+                labels2txt(os.path.join(OUTPUT_PATH, f'%0{fmt}d' % (
+                    RENDER_INDEX)), get_labels(objs_data, camera))
 
                 RENDER_INDEX = RENDER_INDEX + 1
 
@@ -1801,15 +1804,16 @@ if __name__ == "__main__":
     RENDER_INDEX = 0
     OUTPUT_PATH = os.path.abspath(data["path"])
     RESOLUTION = data["resolution"]
-    CLASSES = []
+    CLASSES = data["classes"]
     TIME = 0
 
+    Path(OUTPUT_PATH).mkdir(parents=True, exist_ok=True)
     for batch in data["batches"]:
         t1 = time.time()
         main(batch)
         t2 = time.time()
         TIME += t2 - t1
         print(t2 - t1)
-    
+
     print(TIME)
     print(CLASSES)

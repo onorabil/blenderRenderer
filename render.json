@@ -1,6 +1,7 @@
 {
   "path": "out",
   "resolution": 256,
+  "classes": ["object01", "object02"],
   "batches": [
     {
       "imports": [
@@ -9,8 +10,9 @@
             "path": "models/object01/model_normalized.obj",
             "name": "object01",
             "class": "object01",
-            "position": [0, 0, 0],
-            "rotation": [90, 0, 0],
+            "position": [0.3, 0, 0],
+            "rotation": [0, 33, 0],
+            "scale": [1, 1, 1],
             "seed": 0
           },
           "materials": [
@@ -23,43 +25,15 @@
               "name": "CopperMetal_4K"
             }
           ]
-        }
-      ],
-      "scene": {
-        "camera": {
-          "position": [0, 1, 0],
-          "rotation": [90, 0, 180]
         },
-        "lights": [
-          {
-            "type": "SUN",
-            "position": [0, 0, 1],
-            "rotation": [-60, 0, 0],
-            "energy": 2
-          },
-          {
-            "type": "SUN",
-            "position": [0, 0, -1],
-            "rotation": [120, 0, 0],
-            "energy": 1.5
-          }
-        ],
-        "render": {
-          "x": [85, 84, -17],
-          "y": [0, 1, 1],
-          "z": [0, 361, 90]
-        }
-      }
-    },
-    {
-      "imports": [
         {
           "object": {
             "path": "models/object02/model_normalized.obj",
             "name": "object02",
             "class": "object02",
-            "position": [0, 0, 0],
+            "position": [-0.2, 0, 0],
             "rotation": [90, 0, 0],
+            "scale": [1, 1, 1],
             "seed": 0
           },
           "materials": [
@@ -76,7 +50,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 1, 0],
+          "position": [0, 2, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
