@@ -20,7 +20,6 @@
 # Also produces depth map, albedo map, normal map and optical flow at the same time.
 
 import os
-from pathlib import Path
 import re
 import bpy
 import csv
@@ -28,9 +27,11 @@ import sys
 import json
 import time
 import math
+import pickle
 import argparse
 import mathutils
 import numpy as np
+from pathlib import Path
 import bpy_extras.object_utils
 from typing import List, Dict, Tuple
 
@@ -1733,13 +1734,11 @@ def xyxy2xywh(box):
     return x, y, w, h
 
 
-def get_bbox(world_vertices, camera):
+def get_bbox(camera_vertices):
     minX, maxX = np.inf, -np.inf
     minY, maxY = np.inf, -np.inf
 
-    for vertex in world_vertices:
-        co2D = bpy_extras.object_utils.world_to_camera_view(
-            bpy.context.scene, camera, mathutils.Vector(vertex.v))
+    for co2D in camera_vertices:
         if minX > co2D[0]:
             minX = co2D[0]
         if maxX < co2D[0]:
@@ -1758,6 +1757,11 @@ def labels2txt(path, labels):
             f.write("%s\n" % item)
 
 
+def vertices2pkl(path, vertices):
+    with open(path + '.pkl', 'wb') as f:
+        pickle.dump(vertices, f)
+
+
 def render(objects, rig, camera, views):
     global RENDER_INDEX
     global OUTPUT_PATH
@@ -1774,12 +1778,25 @@ def render(objects, rig, camera, views):
                 rig.rotation_euler = (x, y, z)
                 bpy.ops.render.render()
 
-                # get class_name index and object bounding box
-                labels = [(CLASSES.index(obj.class_name), *
-                           get_bbox(obj.world_vertices, camera)) for obj in objects]
+                labels = []
+                vertices = [] # TODO: Only select visible vertices
+                for obj in objects:
+                    camera_vertices = [list(bpy_extras.object_utils.world_to_camera_view(
+                        bpy.context.scene, camera, mathutils.Vector(vertex.v))) for vertex in obj.world_vertices]
+                    labels.append((CLASSES.index(obj.class_name),
+                                   *get_bbox(camera_vertices)))
+                    vertices.extend(camera_vertices)
+
+                # save class name and the bounding box relative to camera of each object
                 labels_path = os.path.join(
-                    OUTPUT_PATH, f'%0{FNAME_FORMAT}d' % (RENDER_INDEX))
+                    OUTPUT_PATH, f'%0{FNAME_FORMAT}dlabel' % (RENDER_INDEX))
                 labels2txt(labels_path, labels)
+
+                # save scene mesh relative to camera. Z axis represents distance from camera
+                # X, Y represent position on screen between 0 and 1
+                mesh_path = os.path.join(
+                    OUTPUT_PATH, f'%0{FNAME_FORMAT}dmesh' % (RENDER_INDEX))
+                vertices2pkl(mesh_path, vertices)
 
                 RENDER_INDEX = RENDER_INDEX + 1
 

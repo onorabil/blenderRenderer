@@ -15,7 +15,8 @@ Path(join(root, DATASET, 'labels', 'train')).mkdir(parents=True, exist_ok=True)
 Path(join(root, DATASET, 'labels', 'test')).mkdir(parents=True, exist_ok=True)
 
 images = sorted(glob.glob(str(data_path / '*.png'), recursive=True) + glob.glob(str(data_path / '*.exr'), recursive=True))
-labels = glob.glob(str(data_path / '*.txt'), recursive=True)
+labels = glob.glob(str(data_path / '*label.txt'), recursive=True)
+meshes = glob.glob(str(data_path / '*mesh.pkl'), recursive=True)
 
 STEP = 3
 
@@ -25,3 +26,6 @@ for i, image in enumerate(images):
     
 for i, label in enumerate(labels):
     shutil.copy(label, join(root, DATASET, 'labels', 'test' if i % STEP == 0 else 'train'))
+    
+for i, mesh in enumerate(meshes):
+    shutil.copy(mesh, join(root, DATASET, 'labels', 'test' if i % STEP == 0 else 'train'))
