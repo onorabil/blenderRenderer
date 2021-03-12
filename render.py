@@ -1504,6 +1504,20 @@ def get_preferences(context=None):
     """
 
 
+FNAME_FORMAT = 6
+
+
+def initialize_blender():
+    # create custom properties for objects to store world vertices and class names
+    class VectorPropertiesGroup(bpy.types.PropertyGroup):
+        v = bpy.props.FloatVectorProperty(size=3)
+    bpy.utils.register_class(VectorPropertiesGroup)
+
+    bpy.types.Object.class_name = bpy.props.StringProperty()
+    bpy.types.Object.world_vertices = bpy.props.CollectionProperty(
+        type=VectorPropertiesGroup)
+
+
 def setup_output(resolution, base_path="out"):
     scene = bpy.context.scene
     scene.render.engine = 'BLENDER_EEVEE'
@@ -1535,6 +1549,8 @@ def setup_output(resolution, base_path="out"):
     depth_file_output.format.file_format = 'OPEN_EXR'
     links.new(render_layers.outputs['Depth'],
               depth_file_output.inputs['Image'])
+    depth_file_output.file_slots[0].path = (
+        "#" * FNAME_FORMAT) + depth_file_output.label
 
     # Normal setup
     scale_normal = tree.nodes.new(type="CompositorNodeMixRGB")
@@ -1552,6 +1568,8 @@ def setup_output(resolution, base_path="out"):
     normal_file_output.base_path = base_path
     normal_file_output.format.file_format = 'OPEN_EXR'
     links.new(bias_normal.outputs[0], normal_file_output.inputs[0])
+    normal_file_output.file_slots[0].path = (
+        "#" * FNAME_FORMAT) + normal_file_output.label
 
     # Albedo setup
     albedo_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
@@ -1559,6 +1577,8 @@ def setup_output(resolution, base_path="out"):
     albedo_file_output.base_path = base_path
     albedo_file_output.format.file_format = 'OPEN_EXR'
     links.new(render_layers.outputs['DiffCol'], albedo_file_output.inputs[0])
+    albedo_file_output.file_slots[0].path = (
+        "#" * FNAME_FORMAT) + albedo_file_output.label
 
     # Render setup
     render_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
@@ -1566,16 +1586,14 @@ def setup_output(resolution, base_path="out"):
     render_file_output.base_path = base_path
     render_file_output.format.file_format = 'PNG'
     links.new(render_layers.outputs['Image'], render_file_output.inputs[0])
-
-    return [depth_file_output, normal_file_output, albedo_file_output, render_file_output]
+    render_file_output.file_slots[0].path = (
+        "#" * FNAME_FORMAT) + render_file_output.label
 
 
 def randomize_vertices(obj, seed):
     # randomize vertices using blender's vertex_random tool, SEED is an arg
     # 0.0025 is the maximum amount the vertices will move
     # uniform=1 and normal=0 made the model look better than the other configs
-    if seed == 0:
-        return
     obj.select_set(state=True)
     bpy.context.view_layer.objects.active = obj
     bpy.ops.object.mode_set(mode='EDIT')
@@ -1587,16 +1605,18 @@ def randomize_vertices(obj, seed):
 
 def import_object(obj: Dict):
     # import an object and setup its position/rotation and randomize its vertices if needed
-    # return the created blender object and its class label
+    # return the created blender object
     bpy.ops.import_scene.obj(filepath=os.path.abspath(obj["path"]))
     bpy_obj = bpy.context.selected_objects[0]
     bpy_obj.name = obj["name"]
     bpy_obj.location = obj["position"]
     bpy_obj.rotation_euler = np.deg2rad(obj["rotation"])
     bpy_obj.scale = obj["scale"]
-    randomize_vertices(bpy_obj, obj["seed"])
+    bpy_obj.class_name = obj["class"]
+    if obj["seed"]:
+        randomize_vertices(bpy_obj, obj["seed"])
 
-    return bpy_obj, obj["class"]
+    return bpy_obj
 
 
 def import_material(mat: Dict):
@@ -1609,36 +1629,28 @@ def import_material(mat: Dict):
     return material
 
 
-def import_asset(asset):
-    # return object, class label and a list of materials
-    return import_object(asset["object"]), [import_material(mat) for mat in asset["materials"]]
-
-
-def assign_materials(obj, mats):
-    # assigns a list of materials to an object
-    for i, mat in enumerate(mats):
-        obj.data.materials[i] = mat
-
-
-def get_vertices_and_edges(obj):
-    R = mathutils.Euler(obj.rotation_euler).to_matrix().to_4x4()
-    T = mathutils.Matrix.Translation(obj.location)
-    S = mathutils.Matrix.Diagonal(obj.scale).to_4x4()
-    vertices = [T @ R @ S @ v.co for v in obj.data.vertices]
-    edges = [tuple(i.vertices) for i in obj.data.edges]
-
-    return vertices, edges
-
-
 def setup_imports(imports: List):
-    objs_data = []
+    objects = []
     for asset in imports:
-        (obj, obj_class), mats = import_asset(asset)
-        vertices, edges = get_vertices_and_edges(obj)
-        assign_materials(obj, mats)
-        objs_data.append((obj, obj_class, vertices, edges))
+        # import assets: object and materials
+        obj = import_object(asset["object"])
+        mats = [import_material(mat) for mat in asset["materials"]]
 
-    return objs_data
+        # get world vertices for the object
+        R = mathutils.Euler(obj.rotation_euler).to_matrix().to_4x4()
+        T = mathutils.Matrix.Translation(obj.location)
+        S = mathutils.Matrix.Diagonal(obj.scale).to_4x4()
+        # edges = [tuple(i.vertices) for i in obj.data.edges]
+        for v in [T @ R @ S @ v.co for v in obj.data.vertices]:
+            obj.world_vertices.add().v = v
+
+        # assign materials to object
+        for i, mat in enumerate(mats):
+            obj.data.materials[i] = mat
+
+        objects.append(obj)
+
+    return objects
 
 
 def create_camera(camera: Dict):
@@ -1678,14 +1690,11 @@ def create_camera_rig(camera):
     return rig
 
 
-def setup_render_views(render):
+def load_render_data(render):
     return np.deg2rad(range(*render["x"])), np.deg2rad(range(*render["y"])), np.deg2rad(range(*render["z"]))
 
 
 def setup_scene(data: Dict):
-    global RESOLUTION
-    global OUTPUT_PATH
-
     # remove all objects in scene rather than the selected ones
     override = bpy.context.copy()
     override['selected_objects'] = bpy.context.scene.objects
@@ -1700,20 +1709,15 @@ def setup_scene(data: Dict):
     for m in bpy.data.materials:
         bpy.data.materials.remove(m)
 
-    # create the render tree
-    output_nodes = setup_output(resolution=RESOLUTION, base_path=OUTPUT_PATH)
-
-    # Create camera and lights
-    camera, lights = create_camera(data["camera"]), [
-        create_light(light) for light in data["lights"]]
-
-    # Create camera rig
+    # Create camera, rig, and lights
+    camera = create_camera(data["camera"])
     rig = create_camera_rig(camera)
+    lights = [create_light(light) for light in data["lights"]]
 
     # Camera rotations for rendering
-    views = setup_render_views(data["render"])
+    views = load_render_data(data["render"])
 
-    return rig, views, camera, lights, output_nodes
+    return rig, views, camera, lights
 
 
 def xyxy2xywh(box):
@@ -1729,13 +1733,13 @@ def xyxy2xywh(box):
     return x, y, w, h
 
 
-def get_bbox(obj_data, camera):
+def get_bbox(world_vertices, camera):
     minX, maxX = np.inf, -np.inf
     minY, maxY = np.inf, -np.inf
 
-    for v in obj_data[2]:
+    for vertex in world_vertices:
         co2D = bpy_extras.object_utils.world_to_camera_view(
-            bpy.context.scene, camera, v)
+            bpy.context.scene, camera, mathutils.Vector(vertex.v))
         if minX > co2D[0]:
             minX = co2D[0]
         if maxX < co2D[0]:
@@ -1748,48 +1752,48 @@ def get_bbox(obj_data, camera):
     return xyxy2xywh((minX, minY, maxX, maxY))
 
 
-def get_labels(objs_data, camera):
-    global CLASSES
-    return [(CLASSES.index(obj_data[1]), *get_bbox(obj_data, camera)) for obj_data in objs_data]
-
-
-def render_view(rig, view, output_nodes, fmt=6):
-    rig.rotation_euler = view
-    for output_node in output_nodes:
-        output_node.file_slots[0].path = ("#" * fmt) + output_node.label
-    bpy.ops.render.render(write_still=True)
-
-
-def labels2txt(path, bboxes):
+def labels2txt(path, labels):
     with open(path + '.txt', 'w') as f:
-        for item in [" ".join([str(a) for a in bbox]) for bbox in bboxes]:
+        for item in [" ".join([str(a) for a in label]) for label in labels]:
             f.write("%s\n" % item)
 
 
-def render(objs_data, rig, camera, views, output_nodes, fmt=6):
+def render(objects, rig, camera, views):
     global RENDER_INDEX
     global OUTPUT_PATH
+    global CLASSES
     views_x, views_y, views_z = views
 
     for x in views_x:
         for y in views_y:
             for z in views_z:
+                # set frame count, for file names
                 bpy.context.scene.frame_set(RENDER_INDEX)
-                render_view(rig, (x, y, z), output_nodes, fmt=fmt)
-                labels2txt(os.path.join(OUTPUT_PATH, f'%0{fmt}d' % (
-                    RENDER_INDEX)), get_labels(objs_data, camera))
+
+                # render scene view
+                rig.rotation_euler = (x, y, z)
+                bpy.ops.render.render()
+
+                # get class_name index and object bounding box
+                labels = [(CLASSES.index(obj.class_name), *
+                           get_bbox(obj.world_vertices, camera)) for obj in objects]
+                labels_path = os.path.join(
+                    OUTPUT_PATH, f'%0{FNAME_FORMAT}d' % (RENDER_INDEX))
+                labels2txt(labels_path, labels)
 
                 RENDER_INDEX = RENDER_INDEX + 1
 
 
 def main(data: Dict):
     print(data)
-    rig, views, camera, lights, output_nodes = setup_scene(data['scene'])
-    objs_data = setup_imports(data['imports'])
-    render(objs_data, rig, camera, views, output_nodes)
+    rig, views, camera, lights = setup_scene(data['scene'])
+    objects = setup_imports(data['imports'])
+    render(objects, rig, camera, views)
 
 
 if __name__ == "__main__":
+    initialize_blender()
+
     parser = argparse.ArgumentParser(
         description='Renderers a scene given in a json format')
     parser.add_argument(
@@ -1801,19 +1805,24 @@ if __name__ == "__main__":
     with open(ops.json, 'r') as json_file:
         data = json.load(json_file)
 
-    RENDER_INDEX = 0
     OUTPUT_PATH = os.path.abspath(data["path"])
     RESOLUTION = data["resolution"]
     CLASSES = data["classes"]
-    TIME = 0
+    RENDER_INDEX = 0
+    TOTAL_TIME = 0
 
+    # create the render tree
+    setup_output(resolution=RESOLUTION, base_path=OUTPUT_PATH)
+
+    # create output directory
     Path(OUTPUT_PATH).mkdir(parents=True, exist_ok=True)
+
+    # run batches
     for batch in data["batches"]:
         t1 = time.time()
         main(batch)
         t2 = time.time()
-        TIME += t2 - t1
+        TOTAL_TIME += t2 - t1
         print(t2 - t1)
 
-    print(TIME)
-    print(CLASSES)
+    print(TOTAL_TIME)
