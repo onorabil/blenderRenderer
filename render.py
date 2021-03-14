@@ -1802,10 +1802,9 @@ def render(objects, rig, camera, views):
 
 
 def main(data: Dict):
-    print(data)
     rig, views, camera, lights = setup_scene(data['scene'])
     objects = setup_imports(data['imports'])
-    render(objects, rig, camera, views)
+    # render(objects, rig, camera, views)
 
 
 if __name__ == "__main__":
@@ -1834,8 +1833,9 @@ if __name__ == "__main__":
     # create output directory
     Path(OUTPUT_PATH).mkdir(parents=True, exist_ok=True)
 
-    # run batches
+    # run the script for each batch batches
     for batch in data["batches"]:
+        print(batch)
         t1 = time.time()
         main(batch)
         t2 = time.time()
