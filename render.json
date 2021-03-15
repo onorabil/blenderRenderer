@@ -1,10 +1,14 @@
 {
-  "path": "out",
-  "resolution": 256,
   "classes": ["object01", "object02"],
   "batches": [
     {
       "imports": [
+        {
+          "fbx": {
+            "path": "models/camera_animation/model.fbx",
+            "name": "camera"
+          }
+        },
         {
           "object": {
             "path": "models/object01/model_normalized.obj",
@@ -49,10 +53,6 @@
         }
       ],
       "scene": {
-        "camera": {
-          "position": [0, 2, 0],
-          "rotation": [90, 0, 180]
-        },
         "lights": [
           {
             "type": "SUN",
@@ -66,12 +66,13 @@
             "rotation": [120, 0, 0],
             "energy": 1.5
           }
-        ],
-        "render": {
-          "x": [85, 84, -17],
-          "y": [0, 1, 1],
-          "z": [0, 361, 90]
-        }
+        ]
+      },
+      "render": {
+        "path": "out",
+        "resolution": 256,
+        "eevee": false,
+        "frames": [0, 21, 1]
       }
     }
   ]
