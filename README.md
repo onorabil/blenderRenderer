@@ -16,7 +16,7 @@ https://drive.google.com/drive/folders/1IlFDUHxvjXrwdo9GdHM764n9HKwnzfml?usp=sha
 Renders a set of scenes built from a json file.
 
 ```bash
-$ blender -b --python render.py -- json
+$ blender -b --python render.py -- render.json
 ```
 
 To generate the required folder structure run this command<br>
