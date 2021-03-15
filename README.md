@@ -51,13 +51,13 @@ $ python dataset.py
             - `position`: position of the light
             - `rotation`: rotation of the light
             - `energy`: intensity of the light
-        - `render`: render configuration
-            - `path`: the output directory path
-            - `resolution`: the resolution of the image, `witdh`=`height`=`resolution`
-            - `eevee`: use the eevee engine if true else cycles (set false if you want to output the optical flow).
-            next you should use either views for a static render or frames if you use an animation file
-            - `views`:
-                - `x`: angles on the x axis [start, stop(not included), step]
-                - `y`: angles on the y axis [start, stop(not included), step]
-                - `z`: angles on the z axis [start, stop(not included), step]
-            - `frames`: frames to render an animation [start, stop(not included), step]
+    - `render`: render configuration
+        - `path`: the output directory path
+        - `resolution`: the resolution of the image, `witdh`=`height`=`resolution`
+        - `eevee`: use the eevee engine if true else cycles (set false if you want to output the optical flow).
+        next you should use either views for a static render or frames if you use an animation file
+        - `views`:
+            - `x`: angles on the x axis [start, stop(not included), step]
+            - `y`: angles on the y axis [start, stop(not included), step]
+            - `z`: angles on the z axis [start, stop(not included), step]
+        - `frames`: frames to render an animation [start, stop(not included), step]
