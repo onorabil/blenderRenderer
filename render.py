@@ -2008,3 +2008,5 @@ if __name__ == "__main__":
         objects = setup_imports(batch.get("imports", []))
         bpy.ops.scene.light_cache_bake(delay=0, subset='ALL')
         render(objects, batch.get("render", None), render_index=i)
+        bpy.context.scene.name = f"batch_%0{FNAME_FORMAT}d" % i
+        bpy.ops.scene.new(type='FULL_COPY')

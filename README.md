@@ -28,12 +28,10 @@ $ python dataset.py
 
 ### JSON STRUCT
 
-- `path`: the output directory path
-- `resolution`: the resolution of the image, `witdh`=`height`=`resolution`
 - `classes`: list containing the classes of the objects
 - `batches`: a list containing scene information
     - `imports`: a list containing imports (objects, materials) tuples
-        - `object`:
+        - `object`/`fbx`: use object if you import an obj file and fbx if you import an fbx file
             - `path`: path to the object file
             - `name`: the name of the object, used in blender as an id
             - `class`: object class
@@ -54,6 +52,12 @@ $ python dataset.py
             - `rotation`: rotation of the light
             - `energy`: intensity of the light
         - `render`: render configuration
-            - `x`: angles on the x axis [start, stop(not included), step]
-            - `y`: angles on the y axis [start, stop(not included), step]
-            - `z`: angles on the z axis [start, stop(not included), step]
+            - `path`: the output directory path
+            - `resolution`: the resolution of the image, `witdh`=`height`=`resolution`
+            - `eevee`: use the eevee engine if true else cycles (set false if you want to output the optical flow).
+            next you should use either views for a static render or frames if you use an animation file
+            - `views`:
+                - `x`: angles on the x axis [start, stop(not included), step]
+                - `y`: angles on the y axis [start, stop(not included), step]
+                - `z`: angles on the z axis [start, stop(not included), step]
+            - `frames`: frames to render an animation [start, stop(not included), step]
