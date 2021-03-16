@@ -1710,6 +1710,7 @@ def setup_object(bpy_obj, obj):
 
     return bpy_obj
 
+
 def import_object(obj: Dict):
     # import an object and setup its position/rotation and randomize its vertices if needed
     # return the created blender object
@@ -1755,6 +1756,11 @@ def setup_object_data(obj, mats):
 
 
 def setup_imports(imports: List):
+    # remove all objects in scene rather than the selected ones
+    override = bpy.context.copy()
+    override['selected_objects'] = bpy.context.scene.objects
+    bpy.ops.object.delete(override)
+    
     objects = []
     for asset in imports:
         # import assets: object and materials
@@ -1776,33 +1782,41 @@ def setup_imports(imports: List):
 
 def create_camera(camera: Dict):
     # create a camera and setup its position/rotation
-    if not camera:
-        return None
     camera_data = bpy.data.cameras.new(name='Camera')
     camera_object = bpy.data.objects.new('Camera', camera_data)
-    camera_object.location = camera["position"]
-    camera_object.rotation_euler = np.deg2rad(camera["rotation"])
+    camera_object.location = camera.get("position", [0, 0, 0])
+    camera_object.rotation_euler = np.deg2rad(
+        camera.get("rotation", [0, 0, 0]))
     bpy.context.scene.collection.objects.link(camera_object)
     return camera_object
 
 
 def create_light(light: Dict):
     # create a light and setup its position/rotation
-    if not light:
-        return None
-    light_data = bpy.data.lights.new(name="light", type=light["type"])
-    light_data.energy = light["energy"]
+    light_data = bpy.data.lights.new(
+        name="light", type=light.get("type", "SUN"))
+    light_data.energy = light.get("energy", 1)
     light_object = bpy.data.objects.new(name="light", object_data=light_data)
-    light_object.location = light["position"]
-    light_object.rotation_euler = np.deg2rad(light["rotation"])
+    light_object.location = light.get("position", [0, 0, 0])
+    light_object.rotation_euler = np.deg2rad(light.get("rotation", [0, 0, 0]))
     bpy.context.scene.collection.objects.link(light_object)
     return light_object
 
 
+def create_main_camera(camera):
+    if camera is not None:
+        return create_camera(camera)
+    
+    # find camera in objects or create a new one
+    for obj in bpy.context.scene.objects:
+        if isinstance(obj.data, bpy.types.Camera):
+            return obj
+
+    return create_camera({})    
+
+
 def create_camera_rig(camera):
     # create an object and parent it to the camera to make rotations easier
-    if not camera:
-        return None
     rig = bpy.data.objects.new("rig", None)
     rig.location = (0, 0, 0)
     camera.parent = rig
@@ -1825,17 +1839,9 @@ def load_render_frames(frames):
 
 
 def setup_scene(data: Dict):
-    # remove all objects in scene rather than the selected ones
-    override = bpy.context.copy()
-    override['selected_objects'] = bpy.context.scene.objects
-    bpy.ops.object.delete(override)
-
-    if not data:
-        return None, None, []
-
     # Create camera, rig, and lights
-    camera = create_camera(data.get("camera", None))
-    rig = create_camera_rig(camera)
+    camera = create_main_camera(data.get("camera", None))
+    rig = create_camera_rig(camera) if camera.parent is None else camera.parent
     bpy.context.scene.camera = camera
     lights = list(filter(None, [create_light(light)
                                 for light in data.get("lights", [])]))
@@ -1916,31 +1922,18 @@ def create_annotations(objects, output_path, render_index, frame):
     vertices2pkl(mesh_path, vertices)
 
 
-def create_fallback_camera():
-    # find camera in objects or create a new one
-    for obj in bpy.context.scene.objects:
-        if isinstance(obj.data, bpy.types.Camera):
-            return obj
-
-    return create_camera({"position": [0, 0, 0], "rotation": [0, 0, 0]})
-
-
 def render_views(objects, views, output_path, render_index):
-    rig = bpy.context.scene.camera.parent
-
-    views_x, views_y, views_z = views
     frame = 0
 
-    for x in views_x:
-        for y in views_y:
-            for z in views_z:
+    for x in views[0]:
+        for y in views[1]:
+            for z in views[2]:
                 bpy.context.scene.frame_set(frame)
+                bpy.context.scene.camera.parent.rotation_euler = (x, y, z)
 
-                rig.rotation_euler = (x, y, z)
                 bpy.ops.render.render()
 
                 create_annotations(objects, output_path, render_index, frame)
-
                 frame = frame + 1
 
 
@@ -1954,15 +1947,6 @@ def render_animation(objects, frames, output_path, render_index):
 
 
 def render(objects, data, render_index):
-    if not data:
-        return
-
-    # Create camera is there is none
-    if bpy.context.scene.camera is None:
-        bpy.context.scene.camera = create_fallback_camera()
-        if bpy.context.scene.camera.parent is None:
-            _ = create_camera_rig(bpy.context.scene.camera)
-
     # create output directory
     output_path = os.path.abspath(data.get("path", "out"))
     Path(output_path).mkdir(parents=True, exist_ok=True)
@@ -2004,9 +1988,9 @@ if __name__ == "__main__":
     # run the script for each batch batches
     for i, batch in enumerate(data.get("batches", [])):
         print(batch)
-        rig, camera, lights = setup_scene(batch.get("scene", None))
         objects = setup_imports(batch.get("imports", []))
+        rig, camera, lights = setup_scene(batch.get("scene", {}))
         bpy.ops.scene.light_cache_bake(delay=0, subset='ALL')
-        render(objects, batch.get("render", None), render_index=i)
+        render(objects, batch.get("render", {}), render_index=i)
         bpy.context.scene.name = f"batch_%0{FNAME_FORMAT}d" % i
         bpy.ops.scene.new(type='FULL_COPY')
