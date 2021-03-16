@@ -1755,31 +1755,6 @@ def setup_object_data(obj, mats):
         obj.data.materials[i] = new_mat
 
 
-def setup_imports(imports: List):
-    # remove all objects in scene rather than the selected ones
-    override = bpy.context.copy()
-    override['selected_objects'] = bpy.context.scene.objects
-    bpy.ops.object.delete(override)
-    
-    objects = []
-    for asset in imports:
-        # import assets: object and materials
-        if "object" in asset:
-            obj = import_object(asset["object"])
-        elif "fbx" in asset:
-            obj = import_fbx(asset["fbx"])
-        else:
-            continue
-        mats = [import_material(mat) for mat in asset.get("materials", [])]
-
-        if isinstance(obj.data, bpy.types.Mesh):
-            setup_object_data(obj, mats)
-
-        objects.append(obj)
-
-    return objects
-
-
 def create_camera(camera: Dict):
     # create a camera and setup its position/rotation
     camera_data = bpy.data.cameras.new(name='Camera')
@@ -1806,13 +1781,13 @@ def create_light(light: Dict):
 def create_main_camera(camera):
     if camera is not None:
         return create_camera(camera)
-    
+
     # find camera in objects or create a new one
     for obj in bpy.context.scene.objects:
         if isinstance(obj.data, bpy.types.Camera):
             return obj
 
-    return create_camera({})    
+    return create_camera({})
 
 
 def create_camera_rig(camera):
@@ -1836,17 +1811,6 @@ def load_render_views(render):
 
 def load_render_frames(frames):
     return range(*frames)
-
-
-def setup_scene(data: Dict):
-    # Create camera, rig, and lights
-    camera = create_main_camera(data.get("camera", None))
-    rig = create_camera_rig(camera) if camera.parent is None else camera.parent
-    bpy.context.scene.camera = camera
-    lights = list(filter(None, [create_light(light)
-                                for light in data.get("lights", [])]))
-
-    return rig, camera, lights
 
 
 def xyxy2xywh(box):
@@ -1944,6 +1908,42 @@ def render_animation(objects, frames, output_path, render_index):
         bpy.ops.render.render()
 
         create_annotations(objects, output_path, render_index, frame)
+
+
+def setup_imports(imports: List):
+    # remove all objects in scene rather than the selected ones
+    override = bpy.context.copy()
+    override['selected_objects'] = bpy.context.scene.objects
+    bpy.ops.object.delete(override)
+
+    objects = []
+    for asset in imports:
+        # import assets: object and materials
+        if "object" in asset:
+            obj = import_object(asset["object"])
+        elif "fbx" in asset:
+            obj = import_fbx(asset["fbx"])
+        else:
+            continue
+        mats = [import_material(mat) for mat in asset.get("materials", [])]
+
+        if isinstance(obj.data, bpy.types.Mesh):
+            setup_object_data(obj, mats)
+
+        objects.append(obj)
+
+    return objects
+
+
+def setup_scene(data: Dict):
+    # Create camera, rig, and lights
+    camera = create_main_camera(data.get("camera", None))
+    rig = create_camera_rig(camera) if camera.parent is None else camera.parent
+    bpy.context.scene.camera = camera
+    lights = list(filter(None, [create_light(light)
+                                for light in data.get("lights", [])]))
+
+    return rig, camera, lights
 
 
 def render(objects, data, render_index):
