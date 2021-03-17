@@ -22,18 +22,16 @@
 import os
 import re
 import bpy
-import csv
 import sys
-import json
 import time
-import math
+import json
 import pickle
 import argparse
 import mathutils
 import numpy as np
 from pathlib import Path
 import bpy_extras.object_utils
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 
 # -----------------------------------------------------------------------------
@@ -1509,16 +1507,49 @@ FRAME_FORMAT = 6
 FNAME_FORMAT = 4
 
 
+def blockPrint():
+    open(os.devnull, 'a').close()
+    old = os.dup(1)
+    sys.stdout.flush()
+    os.close(1)
+    os.open(os.devnull, os.O_WRONLY)
+    return old
+
+
+def enablePrint(old):
+    os.close(1)
+    os.dup(old)
+    os.close(old)
+
+
+def update_progress(job_title: str, progress):
+    length = 20  # modify this to change the length
+    block = int(round(length*progress))
+    msg = "\r{0:40} [{1}] {2:6.2f}%".format(
+        job_title[:40], "#"*block + "-"*(length-block), round(progress*100, 2))
+    sys.stdout.write(msg)
+    sys.stdout.flush()
+
+
+def finish_progress(job_title, time_spent):
+    length = 20  # modify this to change the length
+    msg = "\r{0:40} [{1}] {2:6.2f}%".format(job_title[:40], "#"*length, 100)
+    msg += " DONE IN {:0.2f}s\r\n".format(time_spent)
+    sys.stdout.write(msg)
+    sys.stdout.flush()
+
+
 def initialize_blender():
     # create custom properties for objects to store world vertices and class names
     class VectorPropertiesGroup(bpy.types.PropertyGroup):
-        v = bpy.props.FloatVectorProperty(size=3)
+        v: bpy.props.FloatVectorProperty(size=3)
     bpy.utils.register_class(VectorPropertiesGroup)
 
     bpy.types.Object.class_name = bpy.props.StringProperty()
     bpy.types.Object.world_vertices = bpy.props.CollectionProperty(
         type=VectorPropertiesGroup)
 
+    old = blockPrint()
     override = bpy.context.copy()
     override['selected_objects'] = bpy.context.scene.objects
     bpy.ops.object.delete(override)
@@ -1531,6 +1562,7 @@ def initialize_blender():
         bpy.data.cameras.remove(c)
     for m in bpy.data.materials:
         bpy.data.materials.remove(m)
+    enablePrint(old)
 
 
 def setup_eevee(resolution, id, base_path="out"):
@@ -1705,7 +1737,7 @@ def setup_object(bpy_obj, obj):
     bpy_obj.rotation_euler = np.deg2rad(obj.get("rotation", [0, 0, 0]))
     bpy_obj.scale = obj.get("scale", [1, 1, 1])
     bpy_obj.class_name = obj.get("class", "undefined")
-    if obj.get("seed", 0):
+    if obj.get("seed", 0) and isinstance(obj.data, bpy.types.Mesh):
         randomize_vertices(bpy_obj, obj.get("seed", 0))
 
     return bpy_obj
@@ -1714,14 +1746,18 @@ def setup_object(bpy_obj, obj):
 def import_object(obj: Dict):
     # import an object and setup its position/rotation and randomize its vertices if needed
     # return the created blender object
+    old = blockPrint()
     bpy.ops.import_scene.obj(filepath=os.path.abspath(obj["path"]))
+    enablePrint(old)
     return setup_object(bpy.context.selected_objects[-1], obj)
 
 
 def import_fbx(fbx: Dict):
     # import an object and setup its position/rotation and randomize its vertices if needed
     # return the created blender object
+    old = blockPrint()
     bpy.ops.import_scene.fbx(filepath=os.path.abspath(fbx["path"]))
+    enablePrint(old)
     return setup_object(bpy.context.selected_objects[-1], fbx)
 
 
@@ -1733,9 +1769,11 @@ def import_material(mat: Dict):
         if mat["name"] == m.name:
             return m
 
+    old = blockPrint()
     lmh = PMC_workflow()
     _, material = lmh.build_material_from_set(
         bpy.context, os.path.abspath(mat["path"]))
+    enablePrint(old)
     material.name = mat["name"]
     return material
 
@@ -1859,7 +1897,7 @@ def get_classes():
     return CLASSES
 
 
-def create_annotations(objects, output_path, render_index, frame):
+def create_annotations(objects, output_path, batch_index, frame):
     camera = bpy.context.scene.camera
     classes = get_classes()
     vertices = []  # TODO: Only select visible vertices
@@ -1876,48 +1914,63 @@ def create_annotations(objects, output_path, render_index, frame):
 
     # save class name and the bounding box relative to camera of each object
     labels_path = os.path.join(
-        output_path, f'%0{FNAME_FORMAT}d_%0{FRAME_FORMAT}dlabel' % (render_index, frame))
+        output_path, f'%0{FNAME_FORMAT}d_%0{FRAME_FORMAT}dlabel' % (batch_index, frame))
     labels2txt(labels_path, labels)
 
     # save scene mesh relative to camera. Z axis represents distance from camera
     # X, Y represent position on screen between 0 and 1
     mesh_path = os.path.join(
-        output_path, f'%0{FNAME_FORMAT}d_%0{FRAME_FORMAT}dmesh' % (render_index, frame))
+        output_path, f'%0{FNAME_FORMAT}d_%0{FRAME_FORMAT}dmesh' % (batch_index, frame))
     vertices2pkl(mesh_path, vertices)
 
 
-def render_views(objects, views, output_path, render_index):
+def render_views(objects, views, output_path, batch_index):
     frame = 0
+    views_x, views_y, views_z = views
+    total_views = len(views_x) * len(views_y) * len(views_z)
 
-    for x in views[0]:
-        for y in views[1]:
-            for z in views[2]:
+    for x in views_x:
+        for y in views_y:
+            for z in views_z:
                 bpy.context.scene.frame_set(frame)
                 bpy.context.scene.camera.parent.rotation_euler = (x, y, z)
 
+                old = blockPrint()
                 bpy.ops.render.render()
+                enablePrint(old)
 
-                create_annotations(objects, output_path, render_index, frame)
+                create_annotations(objects, output_path, batch_index, frame)
                 frame = frame + 1
+                update_progress(
+                    f"Batch {batch_index}/{NUM_BATCHES} (step 4/4 rendering)", frame / total_views)
 
 
-def render_animation(objects, frames, output_path, render_index):
+def render_animation(objects, frames, output_path, batch_index):
+    total_frames = len(frames)
+
     for frame in frames:
         bpy.context.scene.frame_set(frame)
 
+        old = blockPrint()
         bpy.ops.render.render()
+        enablePrint(old)
 
-        create_annotations(objects, output_path, render_index, frame)
+        create_annotations(objects, output_path, batch_index, frame)
+        update_progress(
+            f"Batch {batch_index}/{NUM_BATCHES} (step 4/4 rendering)", (frame + 1) / total_frames)
 
 
-def setup_imports(imports: List):
+def setup_imports(imports: List, batch_index):
     # remove all objects in scene rather than the selected ones
+    old = blockPrint()
     override = bpy.context.copy()
     override['selected_objects'] = bpy.context.scene.objects
     bpy.ops.object.delete(override)
+    enablePrint(old)
 
     objects = []
-    for asset in imports:
+    update_progress(f"Batch {batch_index}/{NUM_BATCHES} (step 1/4 import)", 0)
+    for i, asset in enumerate(imports, 1):
         # import assets: object and materials
         if "object" in asset:
             obj = import_object(asset["object"])
@@ -1931,23 +1984,28 @@ def setup_imports(imports: List):
             setup_object_data(obj, mats)
 
         objects.append(obj)
+        update_progress(
+            f"Batch {batch_index}/{NUM_BATCHES} (step 1/4 import)", i/len(imports))
 
     return objects
 
 
-def setup_scene(data: Dict):
+def setup_scene(data: Dict, batch_index):
     # Create camera, rig, and lights
+    update_progress(f"Batch {batch_index}/{NUM_BATCHES} (step 2/4 setup scene)", 0)
     camera = create_main_camera(data.get("camera", None))
     rig = create_camera_rig(camera) if camera.parent is None else camera.parent
     bpy.context.scene.camera = camera
     lights = list(filter(None, [create_light(light)
                                 for light in data.get("lights", [])]))
+    update_progress(f"Batch {batch_index}/{NUM_BATCHES} (step 2/4 setup scene)", 1)
 
     return rig, camera, lights
 
 
-def render(objects, data, render_index):
+def render(objects, data, batch_index):
     # create output directory
+    update_progress(f"Batch {batch_index}/{NUM_BATCHES} (step 3/4 setup output)", 0)
     output_path = os.path.abspath(data.get("path", "out"))
     Path(output_path).mkdir(parents=True, exist_ok=True)
 
@@ -1955,18 +2013,21 @@ def render(objects, data, render_index):
     resolution = data.get("resolution", 256)
     if data.get("eevee", True):
         setup_eevee(resolution=resolution,
-                    base_path=output_path, id=render_index)
+                    base_path=output_path, id=batch_index)
     else:
         setup_cycles(resolution=resolution,
-                     base_path=output_path, id=render_index)
+                     base_path=output_path, id=batch_index)
+    update_progress(f"Batch {batch_index}/{NUM_BATCHES} (step 3/4 setup output)", 1)
 
     # Rendering type
+    update_progress(f"Batch {batch_index}/{NUM_BATCHES} (step 4/4 rendering)", 0)
     if "views" in data:
         views = load_render_views(data["views"])
-        render_views(objects, views, output_path, render_index)
+        render_views(objects, views, output_path, batch_index)
     elif "frames" in data:
         frames = load_render_frames(data["frames"])
-        render_animation(objects, frames, output_path, render_index)
+        render_animation(objects, frames, output_path, batch_index)
+    update_progress(f"Batch {batch_index}/{NUM_BATCHES} (step 4/4 rendering)", 1)
 
 
 if __name__ == "__main__":
@@ -1985,12 +2046,17 @@ if __name__ == "__main__":
 
     CLASSES = data.get("classes", [])
 
+    batches = data.get("batches", [])
+    NUM_BATCHES = len(batches)
     # run the script for each batch batches
-    for i, batch in enumerate(data.get("batches", [])):
-        print(batch)
-        objects = setup_imports(batch.get("imports", []))
-        rig, camera, lights = setup_scene(batch.get("scene", {}))
+    for i, batch in enumerate(batches, 1):
+        ti = time.time()
+        update_progress(f"Batch {i}/{NUM_BATCHES}", 0)
+        objects = setup_imports(batch.get("imports", []), batch_index=i)
+        rig, camera, lights = setup_scene(
+            batch.get("scene", {}), batch_index=i)
         bpy.ops.scene.light_cache_bake(delay=0, subset='ALL')
-        render(objects, batch.get("render", {}), render_index=i)
+        render(objects, batch.get("render", {}), batch_index=i)
         bpy.context.scene.name = f"batch_%0{FNAME_FORMAT}d" % i
         bpy.ops.scene.new(type='FULL_COPY')
+        finish_progress(f"Batch {i}/{NUM_BATCHES}", time.time() - ti)
