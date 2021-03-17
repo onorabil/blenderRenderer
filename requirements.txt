@@ -1,7 +1,2 @@
-bpy
-bpy_extras
 numpy
-mathutils
-csv
-matplotlib
 cv2
