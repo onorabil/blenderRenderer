@@ -1892,6 +1892,23 @@ def vertices2pkl(path, vertices):
         pickle.dump(vertices, f)
 
 
+def progress2tmp(batch_index, frame):
+    with open(".tmp", "w") as f:
+        f.write("%d\n" % batch_index)
+        f.write("%d\n" % frame)
+
+
+def tmp2progress():
+    progress = [0, 0]
+    try:
+        with open(".tmp", "r") as f:
+            progress = [int(x) for x in f.read().splitlines()]
+    except:
+        return 0, 0
+        
+    return progress[0], progress[1]
+
+
 def get_classes():
     global CLASSES
     return CLASSES
@@ -1928,10 +1945,16 @@ def render_views(objects, views, output_path, batch_index):
     frame = 0
     views_x, views_y, views_z = views
     total_views = len(views_x) * len(views_y) * len(views_z)
+    start_frame = 0 if batch_index > START_INDEX else START_FRAME
 
     for x in views_x:
         for y in views_y:
             for z in views_z:
+
+                if frame < start_frame:
+                    frame = frame + 1
+                    continue
+
                 bpy.context.scene.frame_set(frame)
                 bpy.context.scene.camera.parent.rotation_euler = (x, y, z)
 
@@ -1940,15 +1963,17 @@ def render_views(objects, views, output_path, batch_index):
                 enablePrint(old)
 
                 create_annotations(objects, output_path, batch_index, frame)
-                frame = frame + 1
                 update_progress(
-                    f"Batch {batch_index}/{NUM_BATCHES} (step 4/4 rendering)", frame / total_views)
+                    f"Batch {batch_index}/{NUM_BATCHES-1} (step 4/4 rendering)", (frame + 1) / total_views)
+                progress2tmp(batch_index, frame)
+                frame = frame + 1
 
 
 def render_animation(objects, frames, output_path, batch_index):
     total_frames = len(frames)
+    start_frame = 0 if batch_index > START_INDEX else START_FRAME
 
-    for frame in frames:
+    for frame in frames[start_frame:]:
         bpy.context.scene.frame_set(frame)
 
         old = blockPrint()
@@ -1957,7 +1982,8 @@ def render_animation(objects, frames, output_path, batch_index):
 
         create_annotations(objects, output_path, batch_index, frame)
         update_progress(
-            f"Batch {batch_index}/{NUM_BATCHES} (step 4/4 rendering)", (frame + 1) / total_frames)
+            f"Batch {batch_index}/{NUM_BATCHES-1} (step 4/4 rendering)", (frame + 1) / total_frames)
+        progress2tmp(batch_index, frame)
 
 
 def setup_imports(imports: List, batch_index):
@@ -1969,7 +1995,7 @@ def setup_imports(imports: List, batch_index):
     enablePrint(old)
 
     objects = []
-    update_progress(f"Batch {batch_index}/{NUM_BATCHES} (step 1/4 import)", 0)
+    update_progress(f"Batch {batch_index}/{NUM_BATCHES-1} (step 1/4 import)", 0)
     for i, asset in enumerate(imports, 1):
         # import assets: object and materials
         if "object" in asset:
@@ -1985,27 +2011,30 @@ def setup_imports(imports: List, batch_index):
 
         objects.append(obj)
         update_progress(
-            f"Batch {batch_index}/{NUM_BATCHES} (step 1/4 import)", i/len(imports))
+            f"Batch {batch_index}/{NUM_BATCHES-1} (step 1/4 import)", i/len(imports))
 
     return objects
 
 
 def setup_scene(data: Dict, batch_index):
     # Create camera, rig, and lights
-    update_progress(f"Batch {batch_index}/{NUM_BATCHES} (step 2/4 setup scene)", 0)
+    update_progress(
+        f"Batch {batch_index}/{NUM_BATCHES-1} (step 2/4 setup scene)", 0)
     camera = create_main_camera(data.get("camera", None))
     rig = create_camera_rig(camera) if camera.parent is None else camera.parent
     bpy.context.scene.camera = camera
     lights = list(filter(None, [create_light(light)
                                 for light in data.get("lights", [])]))
-    update_progress(f"Batch {batch_index}/{NUM_BATCHES} (step 2/4 setup scene)", 1)
+    update_progress(
+        f"Batch {batch_index}/{NUM_BATCHES-1} (step 2/4 setup scene)", 1)
 
     return rig, camera, lights
 
 
 def render(objects, data, batch_index):
     # create output directory
-    update_progress(f"Batch {batch_index}/{NUM_BATCHES} (step 3/4 setup output)", 0)
+    update_progress(
+        f"Batch {batch_index}/{NUM_BATCHES-1} (step 3/4 setup output)", 0)
     output_path = os.path.abspath(data.get("path", "out"))
     Path(output_path).mkdir(parents=True, exist_ok=True)
 
@@ -2017,17 +2046,20 @@ def render(objects, data, batch_index):
     else:
         setup_cycles(resolution=resolution,
                      base_path=output_path, id=batch_index)
-    update_progress(f"Batch {batch_index}/{NUM_BATCHES} (step 3/4 setup output)", 1)
+    update_progress(
+        f"Batch {batch_index}/{NUM_BATCHES-1} (step 3/4 setup output)", 1)
 
     # Rendering type
-    update_progress(f"Batch {batch_index}/{NUM_BATCHES} (step 4/4 rendering)", 0)
+    update_progress(
+        f"Batch {batch_index}/{NUM_BATCHES-1} (step 4/4 rendering)", 0)
     if "views" in data:
         views = load_render_views(data["views"])
         render_views(objects, views, output_path, batch_index)
     elif "frames" in data:
         frames = load_render_frames(data["frames"])
         render_animation(objects, frames, output_path, batch_index)
-    update_progress(f"Batch {batch_index}/{NUM_BATCHES} (step 4/4 rendering)", 1)
+    update_progress(
+        f"Batch {batch_index}/{NUM_BATCHES-1} (step 4/4 rendering)", 1)
 
 
 if __name__ == "__main__":
@@ -2037,21 +2069,26 @@ if __name__ == "__main__":
         description='Renderers a scene given in a json format')
     parser.add_argument(
         'json', type=str, help='Path to the json file to be used for rendering.')
-    ops = sys.argv[sys.argv.index("--") + 1:]
-    ops = parser.parse_args(ops)
-    print(ops)
+    parser.add_argument('--resume', action='store_true',
+                        help='resume most recent render')
+    opt = sys.argv[sys.argv.index("--") + 1:]
+    opt = parser.parse_args(opt)
+    print(opt)
 
-    with open(ops.json, 'r') as json_file:
+    with open(opt.json, 'r') as json_file:
         data = json.load(json_file)
+        
+    START_INDEX, START_FRAME = tmp2progress() if opt.resume else (0, 0)
 
     CLASSES = data.get("classes", [])
-
     batches = data.get("batches", [])
     NUM_BATCHES = len(batches)
+
     # run the script for each batch batches
-    for i, batch in enumerate(batches, 1):
+    for i in range(START_INDEX, NUM_BATCHES):
         ti = time.time()
-        update_progress(f"Batch {i}/{NUM_BATCHES}", 0)
+        batch = batches[i]
+        update_progress(f"Batch {i}/{NUM_BATCHES-1}", 0)
         objects = setup_imports(batch.get("imports", []), batch_index=i)
         rig, camera, lights = setup_scene(
             batch.get("scene", {}), batch_index=i)
@@ -2059,4 +2096,4 @@ if __name__ == "__main__":
         render(objects, batch.get("render", {}), batch_index=i)
         bpy.context.scene.name = f"batch_%0{FNAME_FORMAT}d" % i
         bpy.ops.scene.new(type='FULL_COPY')
-        finish_progress(f"Batch {i}/{NUM_BATCHES}", time.time() - ti)
+        finish_progress(f"Batch {i}/{NUM_BATCHES-1}", time.time() - ti)
