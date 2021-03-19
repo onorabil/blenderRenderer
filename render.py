@@ -2085,7 +2085,10 @@ if __name__ == "__main__":
     NUM_BATCHES = len(batches)
 
     # run the script for each batch batches
-    for i in range(START_INDEX, NUM_BATCHES):
+    for i in range(NUM_BATCHES):
+        if i < START_INDEX:
+            finish_progress(f"Batch {i}/{NUM_BATCHES-1}", 0)
+            continue
         ti = time.time()
         batch = batches[i]
         update_progress(f"Batch {i}/{NUM_BATCHES-1}", 0)
