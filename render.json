@@ -54,7 +54,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -105,7 +105,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -156,7 +156,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -215,7 +215,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -270,7 +270,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -321,7 +321,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -372,7 +372,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -423,7 +423,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -478,7 +478,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -533,7 +533,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -588,7 +588,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -643,7 +643,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -694,7 +694,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -745,7 +745,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -796,7 +796,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -847,7 +847,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -898,7 +898,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -949,7 +949,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -1000,7 +1000,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -1051,7 +1051,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -1102,7 +1102,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -1153,7 +1153,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -1204,7 +1204,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -1255,7 +1255,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -1302,7 +1302,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -1349,7 +1349,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -1400,7 +1400,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -1447,7 +1447,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -1494,7 +1494,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [
@@ -1541,7 +1541,7 @@
       ],
       "scene": {
         "camera": {
-          "position": [0, 2, 0],
+          "position": [0, 4, 0],
           "rotation": [90, 0, 180]
         },
         "lights": [

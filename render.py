@@ -1887,9 +1887,9 @@ def labels2txt(path, labels):
             f.write("%s\n" % item)
 
 
-def vertices2pkl(path, vertices):
+def meshes2pkl(path, meshes):
     with open(path + '.pkl', 'wb') as f:
-        pickle.dump(vertices, f)
+        pickle.dump(meshes, f)
 
 
 def progress2tmp(batch_index, frame):
@@ -1917,17 +1917,17 @@ def get_classes():
 def create_annotations(objects, output_path, batch_index, frame):
     camera = bpy.context.scene.camera
     classes = get_classes()
-    vertices = []  # TODO: Only select visible vertices
+    meshes = []
     labels = []
 
     for obj in objects:
         if obj.class_name not in classes:
             continue
-        camera_vertices = [list(bpy_extras.object_utils.world_to_camera_view(
-            bpy.context.scene, camera, mathutils.Vector(vertex.v))) for vertex in obj.world_vertices]
+        camera_vertices = np.array([list(bpy_extras.object_utils.world_to_camera_view(bpy.context.scene, camera, mathutils.Vector(vertex.v))) for vertex in obj.world_vertices])
+        edges = np.array([list(i.vertices) for i in obj.data.edges])
         labels.append((classes.index(obj.class_name),
                        *get_bbox(camera_vertices)))
-        vertices.extend(camera_vertices)
+        meshes.append((camera_vertices, edges))
 
     # save class name and the bounding box relative to camera of each object
     labels_path = os.path.join(
@@ -1938,7 +1938,7 @@ def create_annotations(objects, output_path, batch_index, frame):
     # X, Y represent position on screen between 0 and 1
     mesh_path = os.path.join(
         output_path, f'%0{FNAME_FORMAT}d_%0{FRAME_FORMAT}dmesh' % (batch_index, frame))
-    vertices2pkl(mesh_path, vertices)
+    meshes2pkl(mesh_path, meshes)
 
 
 def render_views(objects, views, output_path, batch_index):
