@@ -13,10 +13,11 @@ https://drive.google.com/drive/folders/1IlFDUHxvjXrwdo9GdHM764n9HKwnzfml?usp=sha
 
 ### USAGE
 
-Renders a set of scenes built from a json file.
+Renders a set of scenes built from a json file. <br>
+You can use --resume to continue an interrupted render.
 
 ```bash
-$ blender -b --python render.py -- render.json
+$ blender -b --python render.py -- render.json [--resume]
 ```
 
 To generate the required folder structure run this command<br>
