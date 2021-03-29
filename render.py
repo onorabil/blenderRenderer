@@ -1927,7 +1927,7 @@ def create_annotations(objects, output_path, batch_index, frame):
         edges = np.array([list(i.vertices) for i in obj.data.edges])
         labels.append((classes.index(obj.class_name),
                        *get_bbox(camera_vertices)))
-        meshes.append((camera_vertices, edges))
+        meshes.append((classes.index(obj.class_name),camera_vertices, edges))
 
     # save class name and the bounding box relative to camera of each object
     labels_path = os.path.join(

@@ -5,5 +5,6 @@ __pycache__
 .vscode
 commands.bat
 output
+multi
 out
 .tmp
