@@ -1565,7 +1565,7 @@ def initialize_blender():
     enablePrint(old)
 
 
-def setup_eevee(resolution, id, base_path="out"):
+def setup_eevee_basic(resolution, id, base_path="out"):
     scene = bpy.context.scene
     scene.render.engine = 'BLENDER_EEVEE'
     scene.render.resolution_x = resolution
@@ -1575,7 +1575,7 @@ def setup_eevee(resolution, id, base_path="out"):
     scene.render.image_settings.color_depth = "16"
 
     # Materials dont render on eevee. this fixes it...
-    bpy.context.scene.render.use_high_quality_normals = True
+    scene.render.use_high_quality_normals = True
 
     scene.use_nodes = True
     scene.view_layers["View Layer"].use_pass_normal = True
@@ -1637,7 +1637,7 @@ def setup_eevee(resolution, id, base_path="out"):
         (f"%0{FNAME_FORMAT}d_" % id) + "#" * FRAME_FORMAT) + render_file_output.label
 
 
-def setup_cycles(resolution, id, base_path="out"):
+def setup_cycles_flow(resolution, id, base_path="out"):
     scene = bpy.context.scene
     scene.render.engine = 'CYCLES'
     # scene.cycles.device = 'GPU'
@@ -1717,6 +1717,43 @@ def setup_cycles(resolution, id, base_path="out"):
     render_file_output.file_slots[0].path = (
         (f"%0{FNAME_FORMAT}d_" % id) + "#" * FRAME_FORMAT) + render_file_output.label
 
+
+def setup_eevee_stereo(resolution, id, base_path="out"):
+    scene = bpy.context.scene
+    scene.render.engine = 'BLENDER_EEVEE'
+    scene.render.resolution_x = resolution
+    scene.render.resolution_y = resolution
+    scene.render.resolution_percentage = 100
+    scene.render.image_settings.file_format = "PNG"
+    scene.render.image_settings.color_depth = "16"
+
+    # Materials dont render on eevee. this fixes it...
+    scene.render.use_high_quality_normals = True
+   
+    scene.render.use_multiview = True
+    scene.render.image_settings.views_format = 'STEREO_3D'
+    scene.render.image_settings.stereo_3d_format.display_mode = 'SIDEBYSIDE'
+    scene.render.image_settings.stereo_3d_format.use_sidebyside_crosseyed = True
+    
+    scene.use_nodes = True
+
+    tree = scene.node_tree
+    links = tree.links
+    for n in tree.nodes:
+        tree.nodes.remove(n)
+
+    # Create input render layer node.
+    render_layers = tree.nodes.new('CompositorNodeRLayers')
+
+    # Stereo setup    
+    stereo_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
+    stereo_file_output.label = 'stereo'
+    stereo_file_output.base_path = base_path
+    stereo_file_output.format.file_format = 'PNG'
+    links.new(render_layers.outputs['Image'], stereo_file_output.inputs[0])
+    stereo_file_output.file_slots[0].path = (
+        (f"%0{FNAME_FORMAT}d_" % id) + "#" * FRAME_FORMAT) + stereo_file_output.label
+    
 
 def randomize_vertices(obj, seed):
     # randomize vertices using blender's vertex_random tool, SEED is an arg
@@ -2040,12 +2077,15 @@ def render(objects, data, batch_index):
 
     # create the render tree
     resolution = data.get("resolution", 256)
-    if data.get("eevee", True):
-        setup_eevee(resolution=resolution,
+    if data.get("type", "basic") == "basic":
+        setup_eevee_basic(resolution=resolution,
                     base_path=output_path, id=batch_index)
-    else:
-        setup_cycles(resolution=resolution,
+    elif data.get("type", "basic") == "flow":
+        setup_cycles_flow(resolution=resolution,
                      base_path=output_path, id=batch_index)
+    elif data.get("type", "basic") == "stereo":
+        setup_eevee_stereo(resolution=resolution,
+                           base_path=output_path, id=batch_index)
     update_progress(
         f"Batch {batch_index}/{NUM_BATCHES-1} (step 3/4 setup output)", 1)
 

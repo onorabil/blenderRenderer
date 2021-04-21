@@ -55,7 +55,7 @@ $ python dataset.py
     - `render`: render configuration
         - `path`: the output directory path
         - `resolution`: the resolution of the image, `witdh`=`height`=`resolution`
-        - `eevee`: use the eevee engine if true else cycles (set false if you want to output the optical flow).
+        - `type`: "basic", "flow", "stereo": basic and stereo use the eevee engine. optical flow needs cycles
         next you should use either views for a static render or frames if you use an animation file
         - `views`:
             - `x`: angles on the x axis [start, stop(not included), step]

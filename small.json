@@ -75,7 +75,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -126,7 +126,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -177,7 +177,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -236,7 +236,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -291,7 +291,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -342,7 +342,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -393,7 +393,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -444,7 +444,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -499,7 +499,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -554,7 +554,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -609,7 +609,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -664,7 +664,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -715,7 +715,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -766,7 +766,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -817,7 +817,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -868,7 +868,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -919,7 +919,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -970,7 +970,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -1021,7 +1021,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -1072,7 +1072,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -1123,7 +1123,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -1174,7 +1174,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -1225,7 +1225,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -1276,7 +1276,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -1323,7 +1323,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -1370,7 +1370,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -1421,7 +1421,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -1468,7 +1468,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -1515,7 +1515,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
@@ -1562,7 +1562,7 @@
         "render": {
           "path": "out",
           "resolution": 256,
-          "eevee": true,
+          "type": "basic",
           "views": {
             "x": [35, 34, -1],
             "y": [0, 1, 1],
