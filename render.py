@@ -1730,12 +1730,11 @@ def setup_eevee_stereo(resolution, id, base_path="out"):
     # Materials dont render on eevee. this fixes it...
     scene.render.use_high_quality_normals = True
    
+    # Setup stereo image rendering
     scene.render.use_multiview = True
-    scene.render.image_settings.views_format = 'STEREO_3D'
-    scene.render.image_settings.stereo_3d_format.display_mode = 'SIDEBYSIDE'
-    scene.render.image_settings.stereo_3d_format.use_sidebyside_crosseyed = True
     
     scene.use_nodes = True
+    scene.view_layers["View Layer"].use_pass_normal = True
 
     tree = scene.node_tree
     links = tree.links
@@ -1750,10 +1749,42 @@ def setup_eevee_stereo(resolution, id, base_path="out"):
     stereo_file_output.label = 'stereo'
     stereo_file_output.base_path = base_path
     stereo_file_output.format.file_format = 'PNG'
+    stereo_file_output.format.views_format = 'INDIVIDUAL'
     links.new(render_layers.outputs['Image'], stereo_file_output.inputs[0])
     stereo_file_output.file_slots[0].path = (
         (f"%0{FNAME_FORMAT}d_" % id) + "#" * FRAME_FORMAT) + stereo_file_output.label
+
+    # Depth setup
+    depth_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
+    depth_file_output.label = 'depth'
+    depth_file_output.base_path = base_path
+    depth_file_output.format.file_format = 'OPEN_EXR'
+    depth_file_output.format.views_format = 'INDIVIDUAL'
+    links.new(render_layers.outputs['Depth'],
+              depth_file_output.inputs['Image'])
+    depth_file_output.file_slots[0].path = (
+        (f"%0{FNAME_FORMAT}d_" % id) + "#" * FRAME_FORMAT) + depth_file_output.label
     
+    # Normal setup
+    scale_normal = tree.nodes.new(type="CompositorNodeMixRGB")
+    scale_normal.blend_type = 'MULTIPLY'
+    scale_normal.inputs[2].default_value = (0.5, 0.5, 0.5, 1)
+    links.new(render_layers.outputs['Normal'], scale_normal.inputs[1])
+
+    bias_normal = tree.nodes.new(type="CompositorNodeMixRGB")
+    bias_normal.blend_type = 'ADD'
+    bias_normal.inputs[2].default_value = (0.5, 0.5, 0.5, 0)
+    links.new(scale_normal.outputs[0], bias_normal.inputs[1])
+
+    normal_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
+    normal_file_output.label = 'normal'
+    normal_file_output.base_path = base_path
+    normal_file_output.format.file_format = 'OPEN_EXR'
+    normal_file_output.format.views_format = 'INDIVIDUAL'
+    links.new(bias_normal.outputs[0], normal_file_output.inputs[0])
+    normal_file_output.file_slots[0].path = (
+        (f"%0{FNAME_FORMAT}d_" % id) + "#" * FRAME_FORMAT) + normal_file_output.label
+
 
 def randomize_vertices(obj, seed):
     # randomize vertices using blender's vertex_random tool, SEED is an arg

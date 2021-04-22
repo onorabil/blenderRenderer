@@ -6,5 +6,5 @@ __pycache__
 commands.bat
 output
 multi
-out
+out*
 .tmp
