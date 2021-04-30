@@ -1,0 +1,1213 @@
+{
+  "classes": [
+    "object01",
+    "object02",
+    "object03",
+    "object04",
+    "object05",
+    "object06",
+    "object07",
+    "object08",
+    "object09",
+    "object10",
+    "object11",
+    "object12",
+    "object13",
+    "object14",
+    "object15",
+    "object16",
+    "object17",
+    "object18",
+    "object19",
+    "object20",
+    "object21",
+    "object22",
+    "object23",
+    "object24",
+    "object25",
+    "object26",
+    "object27",
+    "object28",
+    "object29",
+    "object30"
+  ],
+  "batches": [
+    {
+      "imports": [
+        {
+          "object": {
+            "path": "models/object01/model_normalized.obj",
+            "name": "object01",
+            "class": "object01",
+            "position": [0, 0, 0],
+            "rotation": [0, 0, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object02/model_normalized.obj",
+            "name": "object02",
+            "class": "object02",
+            "position": [1, 0, -1],
+            "rotation": [0, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object03/model_normalized.obj",
+            "name": "object03",
+            "class": "object03",
+            "position": [0.75, 0.5, 1],
+            "rotation": [-60, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object04/model_normalized.obj",
+            "name": "object04",
+            "class": "object04",
+            "position": [0.75, -1, -1.5],
+            "rotation": [60, -30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/BlackPlastic_4K",
+              "name": "BlackPlastic_4K"
+            },
+            {
+              "path": "materials/RedPlastic_4K",
+              "name": "RedPlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object05/model_normalized.obj",
+            "name": "object05",
+            "class": "object05",
+            "position": [-1, 0, 1.5],
+            "rotation": [-30, 0, 30]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        }
+      ],
+      "scene": {
+        "camera": {
+          "position": [0, 4, 0],
+          "rotation": [90, 0, 180]
+        },
+        "lights": [
+          {
+            "type": "SUN",
+            "position": [0, 0, 1],
+            "rotation": [-60, 0, 0],
+            "energy": 2
+          },
+          {
+            "type": "SUN",
+            "position": [0, 0, -1],
+            "rotation": [120, 0, 0],
+            "energy": 1.5
+          }
+        ]
+      },
+      "render": {
+        "path": "out",
+        "resolution": 256,
+        "type": "stereo",
+        "views": {
+          "x": [85, -86, -17],
+          "y": [0, 1, 1],
+          "z": [-180, 181, 10]
+        }
+      }
+    },
+    {
+      "imports": [
+        {
+          "object": {
+            "path": "models/object01/model_normalized.obj",
+            "name": "object01",
+            "class": "object01",
+            "position": [-0.029054, 0, 0.457604],
+            "rotation": [50.9527, -1.90792, 4.00302]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object06/model_normalized.obj",
+            "name": "object06",
+            "class": "object06",
+            "position": [0.255142, -1.18901, -0.753039],
+            "rotation": [0, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object03/model_normalized.obj",
+            "name": "object03",
+            "class": "object03",
+            "position": [-0.75, -0.5, 1],
+            "rotation": [-60, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object04/model_normalized.obj",
+            "name": "object04",
+            "class": "object04",
+            "position": [0.600295, 1, 0.230101],
+            "rotation": [60, -30, 22.3823]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/BlackPlastic_4K",
+              "name": "BlackPlastic_4K"
+            },
+            {
+              "path": "materials/RedPlastic_4K",
+              "name": "RedPlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object07/model_normalized.obj",
+            "name": "object07",
+            "class": "object07",
+            "position": [-0.883783, 0, -0.512603],
+            "rotation": [-77.7588, 52.0506, -54.3954]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        }
+      ],
+      "scene": {
+        "camera": {
+          "position": [0, 4, 0],
+          "rotation": [90, 0, 180]
+        },
+        "lights": [
+          {
+            "type": "SUN",
+            "position": [0, 0, 1],
+            "rotation": [-60, 0, 0],
+            "energy": 2
+          },
+          {
+            "type": "SUN",
+            "position": [0, 0, -1],
+            "rotation": [120, 0, 0],
+            "energy": 1.5
+          }
+        ]
+      },
+      "render": {
+        "path": "out",
+        "resolution": 256,
+        "type": "stereo",
+        "views": {
+          "x": [85, -86, -17],
+          "y": [0, 1, 1],
+          "z": [-180, 181, 10]
+        }
+      }
+    },
+    {
+      "imports": [
+        {
+          "object": {
+            "path": "models/object07/model_normalized.obj",
+            "name": "object07",
+            "class": "object07",
+            "position": [0.193847, 0, 0.065268],
+            "rotation": [50.9527, -1.90792, 4.00302]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object08/model_normalized.obj",
+            "name": "object08",
+            "class": "object08",
+            "position": [0.255142, -1.18901, -0.753039],
+            "rotation": [0, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object09/model_normalized.obj",
+            "name": "object09",
+            "class": "object09",
+            "position": [-0.75, -0.5, 1],
+            "rotation": [-60, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object04/model_normalized.obj",
+            "name": "object04",
+            "class": "object04",
+            "position": [0.600295, 1, 0.230101],
+            "rotation": [60, -30, 22.3823]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/BlackPlastic_4K",
+              "name": "BlackPlastic_4K"
+            },
+            {
+              "path": "materials/RedPlastic_4K",
+              "name": "RedPlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object10/model_normalized.obj",
+            "name": "object10",
+            "class": "object10",
+            "position": [-0.883783, 0, -0.512603],
+            "rotation": [-77.7588, 52.0506, -54.3954]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        }
+      ],
+      "scene": {
+        "camera": {
+          "position": [0, 4, 0],
+          "rotation": [90, 0, 180]
+        },
+        "lights": [
+          {
+            "type": "SUN",
+            "position": [0, 0, 1],
+            "rotation": [-60, 0, 0],
+            "energy": 2
+          },
+          {
+            "type": "SUN",
+            "position": [0, 0, -1],
+            "rotation": [120, 0, 0],
+            "energy": 1.5
+          }
+        ]
+      },
+      "render": {
+        "path": "out",
+        "resolution": 256,
+        "type": "stereo",
+        "views": {
+          "x": [85, -86, -17],
+          "y": [0, 1, 1],
+          "z": [-180, 181, 10]
+        }
+      }
+    },
+    {
+      "imports": [
+        {
+          "object": {
+            "path": "models/object11/model_normalized.obj",
+            "name": "object11",
+            "class": "object11",
+            "position": [0.193847, 0, 0.065268],
+            "rotation": [50.9527, -1.90792, 4.00302]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object12/model_normalized.obj",
+            "name": "object12",
+            "class": "object12",
+            "position": [0.255142, -1.18901, -0.753039],
+            "rotation": [0, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object13/model_normalized.obj",
+            "name": "object13",
+            "class": "object13",
+            "position": [-0.75, -0.5, 1],
+            "rotation": [-60, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object14/model_normalized.obj",
+            "name": "object14",
+            "class": "object14",
+            "position": [0.600295, 1, 0.230101],
+            "rotation": [60, -30, 22.3823]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object15/model_normalized.obj",
+            "name": "object15",
+            "class": "object15",
+            "position": [-0.883783, 0, -0.512603],
+            "rotation": [-77.7588, 52.0506, -54.3954]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        }
+      ],
+      "scene": {
+        "camera": {
+          "position": [0, 4, 0],
+          "rotation": [90, 0, 180]
+        },
+        "lights": [
+          {
+            "type": "SUN",
+            "position": [0, 0, 1],
+            "rotation": [-60, 0, 0],
+            "energy": 2
+          },
+          {
+            "type": "SUN",
+            "position": [0, 0, -1],
+            "rotation": [120, 0, 0],
+            "energy": 1.5
+          }
+        ]
+      },
+      "render": {
+        "path": "out",
+        "resolution": 256,
+        "type": "stereo",
+        "views": {
+          "x": [85, -86, -17],
+          "y": [0, 1, 1],
+          "z": [-180, 181, 10]
+        }
+      }
+    },
+    {
+      "imports": [
+        {
+          "object": {
+            "path": "models/object11/model_normalized.obj",
+            "name": "object11",
+            "class": "object11",
+            "position": [0.193847, 0, 0.065268],
+            "rotation": [50.9527, -1.90792, 4.00302]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object17/model_normalized.obj",
+            "name": "object17",
+            "class": "object17",
+            "position": [0.255142, -1.18901, -0.753039],
+            "rotation": [0, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object13/model_normalized.obj",
+            "name": "object13",
+            "class": "object13",
+            "position": [-0.75, -0.5, 1],
+            "rotation": [-60, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object14/model_normalized.obj",
+            "name": "object14",
+            "class": "object14",
+            "position": [0.600295, 1, 0.230101],
+            "rotation": [60, -30, 22.3823]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object16/model_normalized.obj",
+            "name": "object16",
+            "class": "object16",
+            "position": [-0.883783, 0, -0.512603],
+            "rotation": [-77.7588, 52.0506, -54.3954]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        }
+      ],
+      "scene": {
+        "camera": {
+          "position": [0, 4, 0],
+          "rotation": [90, 0, 180]
+        },
+        "lights": [
+          {
+            "type": "SUN",
+            "position": [0, 0, 1],
+            "rotation": [-60, 0, 0],
+            "energy": 2
+          },
+          {
+            "type": "SUN",
+            "position": [0, 0, -1],
+            "rotation": [120, 0, 0],
+            "energy": 1.5
+          }
+        ]
+      },
+      "render": {
+        "path": "out",
+        "resolution": 256,
+        "type": "stereo",
+        "views": {
+          "x": [85, -86, -17],
+          "y": [0, 1, 1],
+          "z": [-180, 181, 10]
+        }
+      }
+    },
+    {
+      "imports": [
+        {
+          "object": {
+            "path": "models/object16/model_normalized.obj",
+            "name": "object16",
+            "class": "object16",
+            "position": [0.193847, 0, 0.065268],
+            "rotation": [50.9527, -1.90792, 4.00302]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object17/model_normalized.obj",
+            "name": "object17",
+            "class": "object17",
+            "position": [0.255142, -1.18901, -0.753039],
+            "rotation": [0, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object18/model_normalized.obj",
+            "name": "object18",
+            "class": "object18",
+            "position": [-0.75, -0.5, 1],
+            "rotation": [-60, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object19/model_normalized.obj",
+            "name": "object19",
+            "class": "object19",
+            "position": [0.600295, 1, 0.230101],
+            "rotation": [60, -30, 22.3823]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object20/model_normalized.obj",
+            "name": "object20",
+            "class": "object20",
+            "position": [-0.883783, 0, -0.512603],
+            "rotation": [-77.7588, 52.0506, -54.3954]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        }
+      ],
+      "scene": {
+        "camera": {
+          "position": [0, 4, 0],
+          "rotation": [90, 0, 180]
+        },
+        "lights": [
+          {
+            "type": "SUN",
+            "position": [0, 0, 1],
+            "rotation": [-60, 0, 0],
+            "energy": 2
+          },
+          {
+            "type": "SUN",
+            "position": [0, 0, -1],
+            "rotation": [120, 0, 0],
+            "energy": 1.5
+          }
+        ]
+      },
+      "render": {
+        "path": "out",
+        "resolution": 256,
+        "type": "stereo",
+        "views": {
+          "x": [85, -86, -17],
+          "y": [0, 1, 1],
+          "z": [-180, 181, 10]
+        }
+      }
+    },
+    {
+      "imports": [
+        {
+          "object": {
+            "path": "models/object21/model_normalized.obj",
+            "name": "object21",
+            "class": "object21",
+            "position": [0.193847, 0, 0.065268],
+            "rotation": [50.9527, -1.90792, 4.00302]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object22/model_normalized.obj",
+            "name": "object22",
+            "class": "object22",
+            "position": [0.255142, -1.18901, -0.753039],
+            "rotation": [0, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object23/model_normalized.obj",
+            "name": "object23",
+            "class": "object23",
+            "position": [-0.75, -0.5, 1],
+            "rotation": [-60, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object24/model_normalized.obj",
+            "name": "object24",
+            "class": "object24",
+            "position": [0.600295, 1, 0.230101],
+            "rotation": [60, -30, 22.3823]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object25/model_normalized.obj",
+            "name": "object25",
+            "class": "object25",
+            "position": [-0.883783, 0, -0.512603],
+            "rotation": [-77.7588, 52.0506, -54.3954]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            }
+          ]
+        }
+      ],
+      "scene": {
+        "camera": {
+          "position": [0, 4, 0],
+          "rotation": [90, 0, 180]
+        },
+        "lights": [
+          {
+            "type": "SUN",
+            "position": [0, 0, 1],
+            "rotation": [-60, 0, 0],
+            "energy": 2
+          },
+          {
+            "type": "SUN",
+            "position": [0, 0, -1],
+            "rotation": [120, 0, 0],
+            "energy": 1.5
+          }
+        ]
+      },
+      "render": {
+        "path": "out",
+        "resolution": 256,
+        "type": "stereo",
+        "views": {
+          "x": [85, -86, -17],
+          "y": [0, 1, 1],
+          "z": [-180, 181, 10]
+        }
+      }
+    },
+    {
+      "imports": [
+        {
+          "object": {
+            "path": "models/object21/model_normalized.obj",
+            "name": "object21",
+            "class": "object21",
+            "position": [0.193847, 0, 0.065268],
+            "rotation": [50.9527, -1.90792, 4.00302]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object22/model_normalized.obj",
+            "name": "object22",
+            "class": "object22",
+            "position": [0.255142, -1.18901, -0.753039],
+            "rotation": [0, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object28/model_normalized.obj",
+            "name": "object28",
+            "class": "object28",
+            "position": [-0.75, -0.5, 1],
+            "rotation": [-60, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object24/model_normalized.obj",
+            "name": "object24",
+            "class": "object24",
+            "position": [0.600295, 1, 0.230101],
+            "rotation": [60, -30, 22.3823]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object26/model_normalized.obj",
+            "name": "object26",
+            "class": "object26",
+            "position": [-0.883783, 0, -0.512603],
+            "rotation": [-77.7588, 52.0506, -54.3954]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            }
+          ]
+        }
+      ],
+      "scene": {
+        "camera": {
+          "position": [0, 4, 0],
+          "rotation": [90, 0, 180]
+        },
+        "lights": [
+          {
+            "type": "SUN",
+            "position": [0, 0, 1],
+            "rotation": [-60, 0, 0],
+            "energy": 2
+          },
+          {
+            "type": "SUN",
+            "position": [0, 0, -1],
+            "rotation": [120, 0, 0],
+            "energy": 1.5
+          }
+        ]
+      },
+      "render": {
+        "path": "out",
+        "resolution": 256,
+        "type": "stereo",
+        "views": {
+          "x": [85, -86, -17],
+          "y": [0, 1, 1],
+          "z": [-180, 181, 10]
+        }
+      }
+    },
+    {
+      "imports": [
+        {
+          "object": {
+            "path": "models/object26/model_normalized.obj",
+            "name": "object26",
+            "class": "object26",
+            "position": [0.193847, 0, 0.065268],
+            "rotation": [50.9527, -1.90792, 4.00302]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object27/model_normalized.obj",
+            "name": "object27",
+            "class": "object27",
+            "position": [0.255142, -1.18901, -0.753039],
+            "rotation": [0, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object28/model_normalized.obj",
+            "name": "object28",
+            "class": "object28",
+            "position": [-0.75, -0.5, 1],
+            "rotation": [-60, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object29/model_normalized.obj",
+            "name": "object29",
+            "class": "object29",
+            "position": [0.600295, 1, 0.230101],
+            "rotation": [60, -30, 22.3823]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object30/model_normalized.obj",
+            "name": "object30",
+            "class": "object30",
+            "position": [-0.883783, 0, -0.512603],
+            "rotation": [-77.7588, 52.0506, -54.3954]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            }
+          ]
+        }
+      ],
+      "scene": {
+        "camera": {
+          "position": [0, 4, 0],
+          "rotation": [90, 0, 180]
+        },
+        "lights": [
+          {
+            "type": "SUN",
+            "position": [0, 0, 1],
+            "rotation": [-60, 0, 0],
+            "energy": 2
+          },
+          {
+            "type": "SUN",
+            "position": [0, 0, -1],
+            "rotation": [120, 0, 0],
+            "energy": 1.5
+          }
+        ]
+      },
+      "render": {
+        "path": "out",
+        "resolution": 256,
+        "type": "stereo",
+        "views": {
+          "x": [85, -86, -17],
+          "y": [0, 1, 1],
+          "z": [-180, 181, 10]
+        }
+      }
+    }
+  ]
+}
