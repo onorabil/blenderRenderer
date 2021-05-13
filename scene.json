@@ -30,7 +30,10 @@
     "object28",
     "object29",
     "object30",
-    "table"
+    "table",
+    "car",
+    "shelf",
+    "floor"
   ],
   "batches": [
     {
@@ -179,6 +182,92 @@
           "x": [0, 1, 1],
           "y": [0, 1, 1],
           "z": [-180, 181, 15]
+        }
+      }
+    },
+    {
+      "imports": [
+        {
+          "object": {
+            "path": "models/car/model_normalized.obj",
+            "name": "car",
+            "class": "car",
+            "rotation": [0, 0, 90]
+          }
+        },
+        {
+          "object": {
+            "path": "models/shelf/model_normalized.obj",
+            "name": "shelf1",
+            "class": "shelf",
+            "position": [2, 2, 0],
+            "rotation": [0, 0, -90]
+
+          }
+        },
+        {
+          "object": {
+            "path": "models/shelf/model_normalized.obj",
+            "name": "shelf2",
+            "class": "shelf",
+            "position": [2, 0, 0],
+            "rotation": [0, 0, -90]
+
+          }
+        },
+        {
+          "object": {
+            "path": "models/shelf/model_normalized.obj",
+            "name": "shelf3",
+            "class": "shelf",
+            "position": [2, -2, 0],
+            "rotation": [0, 0, -90]
+
+          }
+        },
+        {
+          "object": {
+            "path": "models/floor/model_normalized.obj",
+            "name": "floor",
+            "class": "floor",
+            "scale": [100, 100, 1]
+          },
+          "materials": [
+            {
+              "path": "materials/BlackPlastic_4K",
+              "name": "BlackPlastic_4K"
+            }
+          ]
+        }
+      ],
+      "scene": {
+        "camera": {
+          "position": [0, -7.5, 3],
+          "rotation": [70, 0, 0]
+        },
+        "lights": [
+          {
+            "type": "SUN",
+            "position": [0, 0, 1],
+            "rotation": [-60, 0, 0],
+            "energy": 2
+          },
+          {
+            "type": "SUN",
+            "position": [0, 0, -1],
+            "rotation": [120, 0, 0],
+            "energy": 1.5
+          }
+        ]
+      },
+      "render": {
+        "path": "out",
+        "resolution": 256,
+        "type": "basic",
+        "views": {
+          "x": [0, 1, 1],
+          "y": [0, 1, 1],
+          "z": [-180, 1, 15]
         }
       }
     }
