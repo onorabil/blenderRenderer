@@ -4,13 +4,13 @@ import json
 from os import getcwd
 from os.path import join
 from pathlib import Path
+from tqdm import tqdm
 
 DATASET = 'bdataset_stereo'
 wd = Path(getcwd())
 root = wd.parent
 data_path = Path(join(wd, 'out'))
 
-Path(join(root, DATASET)).mkdir(parents=True, exist_ok=True)
 Path(join(root, DATASET)).mkdir(parents=True, exist_ok=True)
 
 left_images = sorted(glob.glob(str(data_path / '*stereo_L.png'), recursive=True))
@@ -26,7 +26,8 @@ JSON_TRAIN_DATA = []
 JSON_TEST_DATA = []
 
 index = 0
-for i, (left_img, right_img, left_depth, right_depth, left_normal, right_normal) in enumerate(zip(left_images, right_images, left_depths, right_depths, left_normals, right_normals)):
+loop = tqdm(zip(left_images, right_images, left_depths, right_depths, left_normals, right_normals))
+for i, (left_img, right_img, left_depth, right_depth, left_normal, right_normal) in enumerate(loop):
     shutil.copy(left_img, join(root, DATASET))
     shutil.copy(right_img, join(root, DATASET))
     shutil.copy(left_depth, join(root, DATASET))

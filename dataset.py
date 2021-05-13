@@ -1,31 +1,50 @@
 import shutil
 import glob
+import json
 from os import getcwd
 from os.path import join
 from pathlib import Path
+from tqdm import tqdm
 
-DATASET='bdataset'
+
+def read_label(path):
+    with open(path, 'r') as f:
+        l = f.readline().split()
+    return int(l[0])
+
+
+DATASET = 'bdataset'
 wd = Path(getcwd())
 root = wd.parent
 data_path = Path(join(wd, 'out'))
 
-Path(join(root, DATASET, 'images', 'train')).mkdir(parents=True, exist_ok=True)
-Path(join(root, DATASET, 'images', 'test')).mkdir(parents=True, exist_ok=True)
-Path(join(root, DATASET, 'labels', 'train')).mkdir(parents=True, exist_ok=True)
-Path(join(root, DATASET, 'labels', 'test')).mkdir(parents=True, exist_ok=True)
+Path(join(root, DATASET)).mkdir(parents=True, exist_ok=True)
 
-images = sorted(glob.glob(str(data_path / '*.png'), recursive=True) + glob.glob(str(data_path / '*.exr'), recursive=True))
-labels = glob.glob(str(data_path / '*label.txt'), recursive=True)
-meshes = glob.glob(str(data_path / '*mesh.pkl'), recursive=True)
+images = sorted(glob.glob(str(data_path / '*rgb.png'), recursive=True))
+normals = sorted(glob.glob(str(data_path / '*normal.exr'), recursive=True))
+depths = sorted(glob.glob(str(data_path / '*depth.exr'), recursive=True))
+labels = sorted(glob.glob(str(data_path / '*label.txt'), recursive=True))
 
 STEP = 3
 
+JSON_TRAIN_DATA = []
+JSON_TEST_DATA = []
+
 index = 0
-for i, image in enumerate(images):
-    shutil.copy(image, join(root, DATASET, 'images', 'test' if (i // 4) % STEP == 0 else 'train'))
-    
-for i, label in enumerate(labels):
-    shutil.copy(label, join(root, DATASET, 'labels', 'test' if i % STEP == 0 else 'train'))
-    
-for i, mesh in enumerate(meshes):
-    shutil.copy(mesh, join(root, DATASET, 'labels', 'test' if i % STEP == 0 else 'train'))
+loop = tqdm(zip(images, normals, depths, labels))
+for i, (img, normal, depth, label_path) in enumerate(loop):
+    shutil.copy(img, join(root, DATASET))
+    shutil.copy(normal, join(root, DATASET))
+    shutil.copy(depth, join(root, DATASET))
+    label = read_label(label_path)
+    (JSON_TEST_DATA if i % STEP == 0 else JSON_TRAIN_DATA).append({
+        "image": Path(img).name,
+        "normal": Path(normal).name,
+        "depth": Path(depth).name,
+        "label": label,
+    })
+
+with open(join(root, DATASET, "train.json"), "w") as f:
+    json.dump(JSON_TRAIN_DATA, f)
+with open(join(root, DATASET, "test.json"), "w") as f:
+    json.dump(JSON_TEST_DATA, f)
