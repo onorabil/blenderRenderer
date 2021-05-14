@@ -5,8 +5,13 @@ from os import getcwd
 from os.path import join
 from pathlib import Path
 from tqdm import tqdm
+import argparse
 
-DATASET = 'bdataset_stereo'
+parser = argparse.ArgumentParser(description="dataset tree structure")
+parser.add_argument("dest", type=str, default="bdataset")
+opt = parser.parse_args()
+
+DATASET = opt.dest
 wd = Path(getcwd())
 root = wd.parent
 data_path = Path(join(wd, 'out'))

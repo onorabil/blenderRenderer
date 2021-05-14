@@ -29,7 +29,11 @@
     "object27",
     "object28",
     "object29",
-    "object30"
+    "object30",
+    "table",
+    "car",
+    "shelf",
+    "floor"
   ],
   "batches": [
     {
@@ -1206,6 +1210,238 @@
           "x": [85, -86, -17],
           "y": [0, 1, 1],
           "z": [-180, 181, 10]
+        }
+      }
+    },
+    {
+      "imports": [
+        {
+          "object": {
+            "path": "models/table_square/model_normalized.obj",
+            "name": "table",
+            "class": "table",
+            "rotation": [90, 0, 0]
+          }
+        },
+        {
+          "object": {
+            "path": "models/object01/model_normalized.obj",
+            "name": "object01",
+            "class": "object01",
+            "position": [-2, 1.5, 0.75],
+            "rotation": [300, 0, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object02/model_normalized.obj",
+            "name": "object02",
+            "class": "object02",
+            "position": [1, 0.5, 0.75],
+            "rotation": [0, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object03/model_normalized.obj",
+            "name": "object03",
+            "class": "object03",
+            "position": [0, 3, 0.75],
+            "rotation": [-60, 30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object04/model_normalized.obj",
+            "name": "object04",
+            "class": "object04",
+            "position": [0, -2, 0.75],
+            "rotation": [60, -30, 0]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/BlackPlastic_4K",
+              "name": "BlackPlastic_4K"
+            },
+            {
+              "path": "materials/RedPlastic_4K",
+              "name": "RedPlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/object05/model_normalized.obj",
+            "name": "object05",
+            "class": "object05",
+            "position": [2, 0, 0.75],
+            "rotation": [-30, 0, 30]
+          },
+          "materials": [
+            {
+              "path": "materials/WhitePlastic_4K",
+              "name": "WhitePlastic_4K"
+            },
+            {
+              "path": "materials/CopperMetal_4K",
+              "name": "CopperMetal_4K"
+            },
+            {
+              "path": "materials/IronMetal_4K",
+              "name": "IronMetal_4K"
+            }
+          ]
+        }
+      ],
+      "scene": {
+        "camera": {
+          "position": [10, 0, 6],
+          "rotation": [60, 0, 90]
+        },
+        "lights": [
+          {
+            "type": "SUN",
+            "position": [0, 0, 1],
+            "rotation": [-60, 0, 0],
+            "energy": 2
+          },
+          {
+            "type": "SUN",
+            "position": [0, 0, -1],
+            "rotation": [120, 0, 0],
+            "energy": 1.5
+          }
+        ]
+      },
+      "render": {
+        "path": "out",
+        "resolution": 256,
+        "type": "stereo",
+        "views": {
+          "x": [0, 1, 1],
+          "y": [0, 1, 1],
+          "z": [-180, 181, 15]
+        }
+      }
+    },
+    {
+      "imports": [
+        {
+          "object": {
+            "path": "models/car/model_normalized.obj",
+            "name": "car",
+            "class": "car",
+            "rotation": [0, 0, 90]
+          }
+        },
+        {
+          "object": {
+            "path": "models/shelf/model_normalized.obj",
+            "name": "shelf1",
+            "class": "shelf",
+            "position": [2, 2, 0],
+            "rotation": [0, 0, -90]
+          }
+        },
+        {
+          "object": {
+            "path": "models/shelf/model_normalized.obj",
+            "name": "shelf2",
+            "class": "shelf",
+            "position": [2, 0, 0],
+            "rotation": [0, 0, -90]
+          }
+        },
+        {
+          "object": {
+            "path": "models/shelf/model_normalized.obj",
+            "name": "shelf3",
+            "class": "shelf",
+            "position": [2, -2, 0],
+            "rotation": [0, 0, -90]
+          }
+        },
+        {
+          "object": {
+            "path": "models/floor/model_normalized.obj",
+            "name": "floor",
+            "class": "floor",
+            "scale": [100, 100, 1]
+          },
+          "materials": [
+            {
+              "path": "materials/BlackPlastic_4K",
+              "name": "BlackPlastic_4K"
+            }
+          ]
+        }
+      ],
+      "scene": {
+        "camera": {
+          "position": [0, -7.5, 3],
+          "rotation": [70, 0, 0]
+        },
+        "lights": [
+          {
+            "type": "SUN",
+            "position": [0, 0, 1],
+            "rotation": [-60, 0, 0],
+            "energy": 2
+          },
+          {
+            "type": "SUN",
+            "position": [0, 0, -1],
+            "rotation": [120, 0, 0],
+            "energy": 1.5
+          }
+        ]
+      },
+      "render": {
+        "path": "out",
+        "resolution": 256,
+        "type": "stereo",
+        "views": {
+          "x": [0, 1, 1],
+          "y": [0, 1, 1],
+          "z": [-180, 1, 15]
         }
       }
     }

@@ -5,6 +5,7 @@ from os import getcwd
 from os.path import join
 from pathlib import Path
 from tqdm import tqdm
+import argparse
 
 
 def read_label(path):
@@ -12,8 +13,11 @@ def read_label(path):
         l = f.readline().split()
     return int(l[0])
 
+parser = argparse.ArgumentParser(description="dataset tree structure")
+parser.add_argument("dest", type=str, default="bdataset")
+opt = parser.parse_args()
 
-DATASET = 'bdataset'
+DATASET = opt.dest
 wd = Path(getcwd())
 root = wd.parent
 data_path = Path(join(wd, 'out'))
