@@ -13,6 +13,13 @@ def read_label(path):
         l = f.readline().split()
     return int(l[0])
 
+
+def read_rotation(path):
+    with open(path, 'r') as f:
+        l = [float(a) for a in f.readline().split()]
+    return l
+
+
 parser = argparse.ArgumentParser(description="dataset tree structure")
 parser.add_argument("dest", type=str, default="bdataset")
 opt = parser.parse_args()
@@ -28,6 +35,7 @@ images = sorted(glob.glob(str(data_path / '*rgb.png'), recursive=True))
 normals = sorted(glob.glob(str(data_path / '*normal.exr'), recursive=True))
 depths = sorted(glob.glob(str(data_path / '*depth.exr'), recursive=True))
 labels = sorted(glob.glob(str(data_path / '*label.txt'), recursive=True))
+rotations = sorted(glob.glob(str(data_path / '*rotation.txt'), recursive=True))
 
 STEP = 3
 
@@ -35,17 +43,19 @@ JSON_TRAIN_DATA = []
 JSON_TEST_DATA = []
 
 index = 0
-loop = tqdm(zip(images, normals, depths, labels))
-for i, (img, normal, depth, label_path) in enumerate(loop):
+loop = tqdm(zip(images, normals, depths, labels, rotations))
+for i, (img, normal, depth, label_path, rotation_path) in enumerate(loop):
     shutil.copy(img, join(root, DATASET))
     shutil.copy(normal, join(root, DATASET))
     shutil.copy(depth, join(root, DATASET))
     label = read_label(label_path)
+    rotation = read_rotation(rotation_path)
     (JSON_TEST_DATA if i % STEP == 0 else JSON_TRAIN_DATA).append({
         "image": Path(img).name,
         "normal": Path(normal).name,
         "depth": Path(depth).name,
         "label": label,
+        "rotation": rotation,
     })
 
 with open(join(root, DATASET, "train.json"), "w") as f:

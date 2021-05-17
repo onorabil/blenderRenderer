@@ -1729,10 +1729,10 @@ def setup_eevee_stereo(resolution, id, base_path="out"):
 
     # Materials dont render on eevee. this fixes it...
     scene.render.use_high_quality_normals = True
-   
+
     # Setup stereo image rendering
     scene.render.use_multiview = True
-    
+
     scene.use_nodes = True
     scene.view_layers["View Layer"].use_pass_normal = True
 
@@ -1744,7 +1744,7 @@ def setup_eevee_stereo(resolution, id, base_path="out"):
     # Create input render layer node.
     render_layers = tree.nodes.new('CompositorNodeRLayers')
 
-    # Stereo setup    
+    # Stereo setup
     stereo_file_output = tree.nodes.new(type="CompositorNodeOutputFile")
     stereo_file_output.label = 'stereo'
     stereo_file_output.base_path = base_path
@@ -1764,7 +1764,7 @@ def setup_eevee_stereo(resolution, id, base_path="out"):
               depth_file_output.inputs['Image'])
     depth_file_output.file_slots[0].path = (
         (f"%0{FNAME_FORMAT}d_" % id) + "#" * FRAME_FORMAT) + depth_file_output.label
-    
+
     # Normal setup
     scale_normal = tree.nodes.new(type="CompositorNodeMixRGB")
     scale_normal.blend_type = 'MULTIPLY'
@@ -1955,6 +1955,11 @@ def labels2txt(path, labels):
             f.write("%s\n" % item)
 
 
+def rotation2txt(path, rotation):
+    with open(path + '.txt', 'w') as f:
+        f.write("%s\n" % " ".join([str(a) for a in rotation]))
+
+
 def meshes2pkl(path, meshes):
     with open(path + '.pkl', 'wb') as f:
         pickle.dump(meshes, f)
@@ -1973,7 +1978,7 @@ def tmp2progress():
             progress = [int(x) for x in f.read().splitlines()]
     except:
         return 0, 0
-        
+
     return progress[0], progress[1]
 
 
@@ -1983,6 +1988,7 @@ def get_classes():
 
 
 def create_annotations(objects, output_path, batch_index, frame):
+    forward = mathutils.Vector((1, 0, 0))
     camera = bpy.context.scene.camera
     classes = get_classes()
     meshes = []
@@ -2001,6 +2007,12 @@ def create_annotations(objects, output_path, batch_index, frame):
     labels_path = os.path.join(
         output_path, f'%0{FNAME_FORMAT}d_%0{FRAME_FORMAT}dlabel' % (batch_index, frame))
     labels2txt(labels_path, labels)
+
+    # save the global forward vector relative to camera space
+    rotation_path = os.path.join(
+        output_path, f'%0{FNAME_FORMAT}d_%0{FRAME_FORMAT}drotation' % (batch_index, frame))
+    relative_forward = bpy_extras.object_utils.world_to_camera_view(bpy.context.scene, camera, forward)
+    rotation2txt(rotation_path, relative_forward.normalized())
 
     # save scene mesh relative to camera. Z axis represents distance from camera
     # X, Y represent position on screen between 0 and 1
@@ -2148,7 +2160,7 @@ if __name__ == "__main__":
 
     with open(opt.json, 'r') as json_file:
         data = json.load(json_file)
-        
+
     START_INDEX, START_FRAME = tmp2progress() if opt.resume else (0, 0)
 
     CLASSES = data.get("classes", [])
