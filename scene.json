@@ -203,8 +203,9 @@
             "path": "models/shelf/model_normalized.obj",
             "name": "shelf1",
             "class": "shelf",
-            "position": [2, 2, 0],
-            "rotation": [0, 0, -90]
+            "position": [2, 3.6, 0],
+            "rotation": [90, 0, -90],
+            "scale": [2, 2, 2]
           }
         },
         {
@@ -213,7 +214,8 @@
             "name": "shelf2",
             "class": "shelf",
             "position": [2, 0, 0],
-            "rotation": [0, 0, -90]
+            "rotation": [90, 0, -90],
+            "scale": [2, 2, 2]
           }
         },
         {
@@ -221,8 +223,9 @@
             "path": "models/shelf/model_normalized.obj",
             "name": "shelf3",
             "class": "shelf",
-            "position": [2, -2, 0],
-            "rotation": [0, 0, -90]
+            "position": [2, -3.6, 0],
+            "rotation": [90, 0, -90],
+            "scale": [2, 2, 2]
           }
         },
         {
