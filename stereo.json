@@ -33,7 +33,10 @@
     "table",
     "car",
     "shelf",
-    "floor"
+    "floor",
+    "bench",
+    "lamp",
+    "vasque"
   ],
   "batches": [
     {
@@ -1356,9 +1359,9 @@
         "resolution": 256,
         "type": "stereo",
         "views": {
-          "x": [0, 1, 1],
+          "x": [0, 16, 15],
           "y": [0, 1, 1],
-          "z": [-180, 181, 15]
+          "z": [-180, 181, 10]
         }
       }
     },
@@ -1377,8 +1380,9 @@
             "path": "models/shelf/model_normalized.obj",
             "name": "shelf1",
             "class": "shelf",
-            "position": [2, 2, 0],
-            "rotation": [0, 0, -90]
+            "position": [2, 3.6, 0],
+            "rotation": [90, 0, -90],
+            "scale": [2, 2, 2]
           }
         },
         {
@@ -1387,7 +1391,8 @@
             "name": "shelf2",
             "class": "shelf",
             "position": [2, 0, 0],
-            "rotation": [0, 0, -90]
+            "rotation": [90, 0, -90],
+            "scale": [2, 2, 2]
           }
         },
         {
@@ -1395,8 +1400,9 @@
             "path": "models/shelf/model_normalized.obj",
             "name": "shelf3",
             "class": "shelf",
-            "position": [2, -2, 0],
-            "rotation": [0, 0, -90]
+            "position": [2, -3.6, 0],
+            "rotation": [90, 0, -90],
+            "scale": [2, 2, 2]
           }
         },
         {
@@ -1439,9 +1445,102 @@
         "resolution": 256,
         "type": "stereo",
         "views": {
-          "x": [0, 1, 1],
+          "x": [0, 16, 15],
           "y": [0, 1, 1],
-          "z": [-180, 1, 15]
+          "z": [-180, 181, 10]
+        }
+      }
+    },
+    {
+      "imports": [
+        {
+          "object": {
+            "path": "models/floor/model_normalized.obj",
+            "name": "floor",
+            "class": "floor",
+            "scale": [100, 100, 1]
+          },
+          "materials": [
+            {
+              "path": "materials/BlackPlastic_4K",
+              "name": "BlackPlastic_4K"
+            }
+          ]
+        },
+        {
+          "object": {
+            "path": "models/lamp/model_normalized.obj",
+            "name": "lamp",
+            "class": "lamp",
+            "rotation": [90, 0, 0],
+            "position": [-4, 0, 0]
+          }
+        },
+        {
+          "object": {
+            "path": "models/lamp/model_normalized.obj",
+            "name": "lamp",
+            "class": "lamp",
+            "rotation": [90, 0, 0],
+            "position": [4, 0, 0]
+          }
+        },
+        {
+          "object": {
+            "path": "models/bench/model_normalized.obj",
+            "name": "bench",
+            "class": "bench",
+            "rotation": [90, 0, 0],
+            "position": [-2, 0, 0]
+          }
+        },
+        {
+          "object": {
+            "path": "models/bench/model_normalized.obj",
+            "name": "bench",
+            "class": "bench",
+            "rotation": [90, 0, 0],
+            "position": [2, 0, 0]
+          }
+        },
+        {
+          "object": {
+            "path": "models/vasque/model_normalized.obj",
+            "name": "vasque",
+            "class": "vasque",
+            "rotation": [90, 0, 0],
+            "position": [0, 0, 0]
+          }
+        }
+      ],
+      "scene": {
+        "camera": {
+          "position": [0, -10, 5],
+          "rotation": [70, 0, 0]
+        },
+        "lights": [
+          {
+            "type": "SUN",
+            "position": [0, 0, 1],
+            "rotation": [-60, 0, 0],
+            "energy": 2
+          },
+          {
+            "type": "SUN",
+            "position": [0, 0, -1],
+            "rotation": [120, 0, 0],
+            "energy": 1.5
+          }
+        ]
+      },
+      "render": {
+        "path": "out",
+        "resolution": 256,
+        "type": "stereo",
+        "views": {
+          "x": [0, 16, 15],
+          "y": [0, 1, 1],
+          "z": [-180, 181, 10]
         }
       }
     }
